@@ -1,4 +1,4 @@
-import 'package:dev_libraries/services/analyticsservice.dart';
+import 'package:dev_libraries/services/analytics/analyticsservice.dart';
 
 //https://developers.facebook.com/docs/app-events/best-practices/ecom-and-retail
 class FacebookAppEventService extends AnalyticsService{

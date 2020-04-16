@@ -1,5 +1,5 @@
 import 'package:appspector/appspector.dart' as appSpector;
-import 'package:dev_libraries/services/logservice.dart';
+import 'package:dev_libraries/services/logging/logservice.dart';
 
 class AppSpectorService extends LogService {
   final Map<String, String> configuration;
