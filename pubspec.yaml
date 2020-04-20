@@ -10,7 +10,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  #libraries
+  rxdart: ^0.23.1
+  queries: ^0.1.12
+  equatable: ^1.0.0
+
+  #framworks
+  bloc: ^3.0.0
+  flutter_bloc: ^3.1.0
+
+  #services
+  #appspector:
+  #  path: C:\Users\dqa6235\projects\flutter-plugin-master\flutter-plugin-master
   appspector: '0.1.0'
+  #firebase_admob: 0.9.3+2
 
 dev_dependencies:
   flutter_test:
