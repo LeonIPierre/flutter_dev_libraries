@@ -1,11 +1,11 @@
 import 'package:dev_libraries/services/ads/adservice.dart';
 //import 'package:firebase_admob/firebase_admob.dart';
 
-class AdMobService extends AdService {
+class FirebaseAdMobService extends AdService {
   final Map<String, String> configuration;
   //MobileAd ad;
 
-  AdMobService(this.configuration);
+  FirebaseAdMobService(this.configuration);
 
   @override
   void initialize() {
