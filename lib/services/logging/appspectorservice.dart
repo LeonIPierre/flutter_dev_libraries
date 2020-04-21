@@ -14,11 +14,11 @@ class AppSpectorService extends LogService {
 
   @override
   void initialize() async {
-    if(!configuration.containsKey("androidApiKey"))
-      throw Exception("Missing key from configuration androidApiKey");
+    // if(!configuration.containsKey("androidApiKey"))
+    //   throw Exception("Missing key from configuration androidApiKey");
 
-    if(!configuration.containsKey("iosApiKey"))
-      throw Exception("Missing key from configuration iosApiKey");
+    // if(!configuration.containsKey("iosApiKey"))
+    //   throw Exception("Missing key from configuration iosApiKey");
 
     var config = appSpector.Config();
     config.iosApiKey = configuration["iosApiKey"];

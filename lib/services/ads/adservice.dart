@@ -1,3 +1,5 @@
+import 'package:dev_libraries/models/ad.dart';
+
 enum AdType {
   Internal,
   Banner,
@@ -10,7 +12,7 @@ enum AdType {
 abstract class AdService {
   void initialize();
   
-  Future<bool> showAd(AdType adType, { List<String> keywords });
+  Future<Ad> showAd(AdType adType, { List<String> keywords });
 
   void dispose();
 }

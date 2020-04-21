@@ -1,8 +1,8 @@
 name: dev_libraries
 description: A set of common patterns to be used across all Flutter projects
 version: 0.0.1
-author:
-homepage:
+author: Leon Pierre
+homepage: 
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -22,7 +22,8 @@ dependencies:
 
   #services
   appspector: '0.1.0'
-  #firebase_admob: 0.9.3+2
+  #firebase_admob: '0.5.5'
+  admob_flutter: ^0.3.4
   #usage: ^3.4.1 //google analytics
 
 dev_dependencies:

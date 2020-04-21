@@ -16,6 +16,7 @@ class AdEvent {
 class AdLoadEvent extends AdEvent {
   final AdType adType;
   final List<String> keywords;
+  final Duration interval; 
 
-  AdLoadEvent(this.adType, {this.keywords}) : super(AdEventId.LoadAd);
+  AdLoadEvent(this.adType, {this.interval, this.keywords}) : super(AdEventId.LoadAd);
 }
