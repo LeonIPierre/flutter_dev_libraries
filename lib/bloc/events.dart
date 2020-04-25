@@ -1,11 +1,13 @@
-import 'package:dev_libraries/services/ads/adservice.dart';
+import 'package:dev_libraries/models/adconfiguration.dart';
 
 enum AdEventId {
   //load
-  LoadAd, 
-  
+  LoadAd,
+  StartAdStream,
+  EndAdStream,
+
   //error
-  AdLoadFailed,
+  AdLoadFailed
 }
 
 class AdEvent {
@@ -14,9 +16,6 @@ class AdEvent {
 }
 
 class AdLoadEvent extends AdEvent {
-  final AdType adType;
-  final List<String> keywords;
-  final Duration interval; 
-
-  AdLoadEvent(this.adType, {this.interval, this.keywords}) : super(AdEventId.LoadAd);
+  final AdConfiguration adConfiguration;
+  AdLoadEvent(this.adConfiguration) : super(AdEventId.LoadAd);
 }

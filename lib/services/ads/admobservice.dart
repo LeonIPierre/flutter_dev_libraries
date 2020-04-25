@@ -1,16 +1,16 @@
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:dev_libraries/models/ad.dart';
-import 'package:dev_libraries/services/ads/adservice.dart';
+import 'package:dev_libraries/models/adconfiguration.dart';
+import 'package:dev_libraries/models/adservice.dart';
 
 class AdMobService extends AdService {
   final String _appId;
 
-  Map<String, dynamic> _configuration;
   AdmobInterstitial _interstitialAd;
   AdmobReward _rewardAd;
 
-  AdMobService(this._appId, { Map<String, dynamic> configuration }) {
-    this._configuration = configuration;
+  AdMobService(this._appId) {
+    initialize();
   }
   
   @override
@@ -24,33 +24,69 @@ class AdMobService extends AdService {
     Admob.initialize(_appId);
   }
 
-  @override
-  Future<Ad> showAd(AdType adType, {List<String> keywords}) async
+  void loadAd(AdType adType)
   {
     switch(adType)
     {
       case AdType.Banner:
+        break;
+      case AdType.Interstitial:
+        _interstitialAd.load();
+        break;
+      case AdType.Reward:
+        _rewardAd.load();
+        break;
+      default:
+        break;
+    }
+  }
+
+  @override
+  Future<Ad> showAd(AdConfiguration options) async
+  {
+    switch(options.adType)
+    {
+      case AdType.Banner:
         AdmobBanner ad = AdmobBanner(
-          adUnitId: _configuration["adUnitId"],
-          adSize: AdmobBannerSize.SMART_BANNER,
+          adUnitId: options.adUnitId,
+          adSize: AdmobBannerSize.BANNER,
           listener: (AdmobAdEvent event, Map<String, dynamic> args)  {
+            switch (event) {
+              case AdmobAdEvent.loaded:
+                print('Admob banner loaded!');
+              break;
+              case AdmobAdEvent.opened:
+                print('Admob banner opened!');
+              break;
+              case AdmobAdEvent.closed:
+              print('Admob banner closed!');
+              break;
+              case AdmobAdEvent.failedToLoad:
+                print('Admob banner failed to load. Error code: ${args['errorCode']}');
+              break;
+              default:
+              break;
+            }            
           });
+          
         return Ad(ad);
         break;
       case AdType.Interstitial:
         _interstitialAd = AdmobInterstitial(
-          adUnitId: _configuration["adUnitId"],
+          adUnitId: options.adUnitId,
           listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-            if (event == AdmobAdEvent.closed) _interstitialAd.load();
+            //if (event == AdmobAdEvent.closed) _interstitialAd.load();
           });
+
           return await _showInterstitialAd();
         break;
       case AdType.Reward:
         _rewardAd = AdmobReward(
-          adUnitId: _configuration["adUnitId"],
+          adUnitId:  options.adUnitId,
           listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-            if (event == AdmobAdEvent.closed) _rewardAd.load();
+            //if (event == AdmobAdEvent.closed) _rewardAd.load();
           });
+
           return await _showRewardAd();
         break;
       default:

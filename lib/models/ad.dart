@@ -1,6 +1,5 @@
 class Ad {
-  Object adObject;
+  final Object adObject;
   
-  Ad(this.adObject) {
-  }
+  Ad(this.adObject);
 }

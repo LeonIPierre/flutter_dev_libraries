@@ -23,7 +23,7 @@ dependencies:
   #services
   appspector: '0.1.0'
   #firebase_admob: '0.5.5'
-  admob_flutter: ^0.3.4
+  admob_flutter: "^1.0.0-beta.2"
   #usage: ^3.4.1 //google analytics
 
 dev_dependencies:
