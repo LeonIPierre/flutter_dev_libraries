@@ -62,7 +62,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
           .where((value) => value >= _adMinimumThreshold)
           .asyncMap((value) async => _createAdEvent(await _adHistoryStream.last, value))
           .where((adRequest) => adRequest != null)
-          .asyncMap((requestEvent) async => _requestAd(requestEvent)));
+          .asyncMap((adRequest) async => _requestAd(adRequest)));
         
         yield AdStreamingState();
         break;
@@ -71,11 +71,18 @@ class AdBloc extends Bloc<AdEvent, AdState> {
       case AdEventId.CloseAd:
       case AdEventId.EndAdStream:
         _visibleAds.remove(event.adConfiguration.adType);
-        dispose();
+        close();
         break;
       default:
         break;
     }
+  }
+
+  @override
+  Future<void> close() {
+    ads.close();
+    _adService.dispose();
+    return super.close();
   }
 
   /// Creates a new AdEvent based on a previous ad event
@@ -85,25 +92,34 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   /// cheap ads are shown often, expensive ones very little
   /// create adaptive ad profiling
   Future<AdEvent> _createAdEvent(AdEvent previousEvent, double value) async {
-    AdConfiguration configuration;
+    AdStreamConfiguration configuration;
     var difference = _adMinimumThreshold - value;
 
     //request a specific ad
     if(difference < .5)
     {
-      configuration = AdConfiguration(AdType.Banner, "", keywords: previousEvent.adConfiguration.keywords);
+      var adUnitId = configuration.adUnitIds["googleAdMob:bannerAdUnitId"];
+      configuration = AdStreamConfiguration(AdType.Banner, adUnitId, keywords: previousEvent.adConfiguration.keywords);
     }
     else if (difference > .5 && difference < .75)
     {
-      configuration = AdConfiguration(AdType.Interstitial, "", keywords: previousEvent.adConfiguration.keywords);
+      var adUnitId = configuration.adUnitIds["googleAdMob:intersitialAdUnitId"];
+      configuration = AdStreamConfiguration(AdType.Interstitial, adUnitId, keywords: previousEvent.adConfiguration.keywords);
     }
-    else if (difference > .75 && difference < .9)
+    else if (difference > .75 && difference < .85)
     {
-      configuration = AdConfiguration(AdType.Native, "", keywords: previousEvent.adConfiguration.keywords);
+      var adUnitId = configuration.adUnitIds["googleAdMob:nativeAdUnitId"];
+      configuration = AdStreamConfiguration(AdType.Native, adUnitId, keywords: previousEvent.adConfiguration.keywords);
+    }
+    else if (difference > .85 && difference < .9)
+    {
+      var adUnitId = configuration.adUnitIds["googleAdMob:rewardAdUnitId"];
+      configuration = AdStreamConfiguration(AdType.Reward, adUnitId, keywords: previousEvent.adConfiguration.keywords);
     }
     else if (difference > .9 && difference < 1)
     {
-      configuration = AdConfiguration(AdType.Internal, "", keywords: previousEvent.adConfiguration.keywords);
+      var adUnitId = configuration.adUnitIds["googleAdMob:internalAdUnitId"];
+      configuration = AdStreamConfiguration(AdType.Internal, adUnitId, keywords: previousEvent.adConfiguration.keywords);
     }
 
     return AdEvent(AdEventId.StreamAd, adConfiguration: configuration); 
@@ -158,10 +174,5 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     {
       return -_adMinimumThreshold;
     });
-  }
-
-  void dispose() {
-    ads.close();
-    _adService.dispose();
   }
 }

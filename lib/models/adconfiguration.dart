@@ -7,3 +7,8 @@ class AdConfiguration {
 
   AdConfiguration(this.adType, this.adUnitId, { this.keywords });
 }
+
+class AdStreamConfiguration extends AdConfiguration {
+  final Map<String, dynamic> adUnitIds;
+  AdStreamConfiguration(AdType firstAdType, this.adUnitIds, { List<String> keywords }) : super(firstAdType, "", keywords: keywords);
+}
