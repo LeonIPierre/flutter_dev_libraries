@@ -3,8 +3,17 @@ import 'package:dev_libraries/models/adconfiguration.dart';
 enum AdEventId {
   //load
   LoadAd,
+
   StartAdStream,
+  StreamAd,
   EndAdStream,
+
+  CloseAd,
+
+  //events for usage activity
+  UpdateAdImpressions,
+  
+  //events for system activity
 
   //error
   AdLoadFailed
@@ -12,10 +21,6 @@ enum AdEventId {
 
 class AdEvent {
   final AdEventId id;
-  AdEvent(this.id);
-}
-
-class AdLoadEvent extends AdEvent {
   final AdConfiguration adConfiguration;
-  AdLoadEvent(this.adConfiguration) : super(AdEventId.LoadAd);
+  AdEvent(this.id, { this.adConfiguration });
 }

@@ -12,5 +12,9 @@ class AdIdealState extends AdState {
 class AdFailedState extends AdState {
 }
 
-class AdLoadingSate extends AdState {
+class AdLoadingState extends AdState {
+}
+
+class AdStreamingState extends AdState {
+  
 }

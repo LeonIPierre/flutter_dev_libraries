@@ -4,13 +4,12 @@ import 'package:dev_libraries/models/adconfiguration.dart';
 import 'package:dev_libraries/models/adservice.dart';
 
 class AdMobService extends AdService {
-  final String _appId;
-
+  AdmobBanner _bannerAd;
   AdmobInterstitial _interstitialAd;
   AdmobReward _rewardAd;
 
-  AdMobService(this._appId) {
-    initialize();
+  AdMobService(String appId) {
+    initialize(appId);
   }
   
   @override
@@ -20,56 +19,22 @@ class AdMobService extends AdService {
   }
 
   @override
-  void initialize() {
-    Admob.initialize(_appId);
-  }
-
-  void loadAd(AdType adType)
-  {
-    switch(adType)
-    {
-      case AdType.Banner:
-        break;
-      case AdType.Interstitial:
-        _interstitialAd.load();
-        break;
-      case AdType.Reward:
-        _rewardAd.load();
-        break;
-      default:
-        break;
-    }
+  void initialize(String appId) {
+    Admob.initialize(appId);
   }
 
   @override
-  Future<Ad> showAd(AdConfiguration options) async
+  AdService loadAd(AdConfiguration options, { dynamic evenListener })
   {
     switch(options.adType)
     {
       case AdType.Banner:
-        AdmobBanner ad = AdmobBanner(
+        _bannerAd = AdmobBanner(
           adUnitId: options.adUnitId,
           adSize: AdmobBannerSize.BANNER,
-          listener: (AdmobAdEvent event, Map<String, dynamic> args)  {
-            switch (event) {
-              case AdmobAdEvent.loaded:
-                print('Admob banner loaded!');
-              break;
-              case AdmobAdEvent.opened:
-                print('Admob banner opened!');
-              break;
-              case AdmobAdEvent.closed:
-              print('Admob banner closed!');
-              break;
-              case AdmobAdEvent.failedToLoad:
-                print('Admob banner failed to load. Error code: ${args['errorCode']}');
-              break;
-              default:
-              break;
-            }            
+          listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+            if(event == AdmobAdEvent.failedToLoad) print("Ad failed to load");
           });
-          
-        return Ad(ad);
         break;
       case AdType.Interstitial:
         _interstitialAd = AdmobInterstitial(
@@ -78,7 +43,7 @@ class AdMobService extends AdService {
             //if (event == AdmobAdEvent.closed) _interstitialAd.load();
           });
 
-          return await _showInterstitialAd();
+        _interstitialAd.load();
         break;
       case AdType.Reward:
         _rewardAd = AdmobReward(
@@ -87,10 +52,27 @@ class AdMobService extends AdService {
             //if (event == AdmobAdEvent.closed) _rewardAd.load();
           });
 
-          return await _showRewardAd();
+        _rewardAd.load();
         break;
       default:
-        return null;
+        break;
+    }
+
+    return this;
+  }
+
+  @override
+  Future<Ad> requestAd(AdConfiguration options) async {
+    switch(options.adType)
+    {
+      case AdType.Banner:
+        return Ad(_bannerAd);
+      case AdType.Interstitial:
+        return await _showInterstitialAd();
+      case AdType.Reward:
+        return await _showRewardAd();
+      default:
+        return throw Exception("Unable to request ad for ${options.adType}");
         break;
     }
   }
@@ -101,7 +83,7 @@ class AdMobService extends AdService {
       return Ad(_interstitialAd);
     }
 
-    return null;
+    return throw Exception("Unable to load $_interstitialAd");
   }
 
   Future<Ad> _showRewardAd() async {
@@ -110,6 +92,6 @@ class AdMobService extends AdService {
       return Ad(_rewardAd);
     }
 
-    return null;
+    return throw Exception("Unable to load $_rewardAd");
   }
 }

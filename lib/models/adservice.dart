@@ -4,7 +4,7 @@ import 'package:dev_libraries/models/adconfiguration.dart';
 enum AdType {
   Any,
 
-  Internal,
+  Internal, //ads for other products I own
   Banner,
   
   Interstitial, //full screen ad
@@ -13,11 +13,11 @@ enum AdType {
 }
 
 abstract class AdService {
-  void initialize();
+  void initialize(String appId);
 
-  void loadAd(AdType adType);
+  AdService loadAd(AdConfiguration options, { dynamic evenListener });
   
-  Future<Ad> showAd(AdConfiguration options);
+  Future<Ad> requestAd(AdConfiguration options);
 
   void dispose();
 }
