@@ -2,9 +2,8 @@ import 'package:appspector/appspector.dart' as appSpector;
 import 'package:dev_libraries/services/logging/logservice.dart';
 
 class AppSpectorService extends LogService {
-  final Map<String, dynamic> configuration;
-  AppSpectorService(this.configuration) : assert(configuration != null) {
-    initialize();
+  AppSpectorService({String androidKey, String iosKey}) {
+    initialize(androidKey: androidKey, iosKey: iosKey);
   }
 
   @override
@@ -13,16 +12,10 @@ class AppSpectorService extends LogService {
   }
 
   @override
-  void initialize() async {
-    // if(!configuration.containsKey("androidApiKey"))
-    //   throw Exception("Missing key from configuration androidApiKey");
-
-    // if(!configuration.containsKey("iosApiKey"))
-    //   throw Exception("Missing key from configuration iosApiKey");
-
+  void initialize({String androidKey, String iosKey}) {
     var config = appSpector.Config();
-    config.iosApiKey = configuration["iosApiKey"];
-    config.androidApiKey = configuration["androidApiKey"];
+    config.iosApiKey = iosKey;
+    config.androidApiKey = androidKey;
     appSpector.AppSpectorPlugin.run(config);
   }
 }

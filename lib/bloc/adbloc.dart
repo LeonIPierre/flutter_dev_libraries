@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/bloc/states.dart';
@@ -11,7 +12,7 @@ import 'package:rxdart/rxdart.dart';
 import 'events.dart';
 
 class AdBloc extends Bloc<AdEvent, AdState> {
-  final int _adIntervalSeconds = 15;
+  final int adIntervalSeconds;
   final double _adMinimumThreshold = 10;
 
   BehaviorSubject<Ad> ads = BehaviorSubject<Ad>();
@@ -24,7 +25,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   AdService _adService;
   Set<AdType> _visibleAds = Set<AdType>();
 
-  AdBloc(String appId, {AdService adService}) {
+  AdBloc(String appId, {AdService adService, this.adIntervalSeconds = 15}) {
     this._adService = adService ?? AdMobService(appId); 
   }
 
@@ -47,28 +48,50 @@ class AdBloc extends Bloc<AdEvent, AdState> {
         break;
       case AdEventId.StartAdStream:
         _resetStreams();
+        event = event.copy(configuration: await _adService
+            .loadAd(event.adConfiguration, eventListener: (event) => _adEventCallback(event)));
+            
         //creates a stream of ads based on the following streams
         //streams: timer, clicks, app usage, device
         //weight system. weight every interaction, once it reaches a certain
         //threshold reset and start over
-
+        
+        //TODO figure out a way to ad the history of the ad stream into the calculation
         ads.addStream(CombineLatestStream.combine4<double, double, double, double, double>(
-            _timerStream.startWith(_adMinimumThreshold),
+            _timerStream,
             _usageStream.startWith(0),
-            _adHistoryStream.map(_mapEventToValue).startWith(0),
+            _adHistoryStream.map(_mapEventToValue).startWith(0.0),
             _appActivityStream.startWith(0),
-            (timer, usage, adHistory, system) => timer + usage + adHistory - system
+            (timer, usage, history, system) => timer + usage - system
           )
-          .where((value) => value >= _adMinimumThreshold)
-          .asyncMap((value) async => _createAdEvent(await _adHistoryStream.last, value))
+          .where((value) {
+            print("Ad threshold value met at $value");
+            return value >= _adMinimumThreshold;
+          })
+          .asyncMap((value) async {
+            AdEvent adEvent = _adHistoryStream.value ?? event;
+            print("Creating ad event $adEvent");
+            return _createAdEvent(adEvent, value);
+          })
           .where((adRequest) => adRequest != null)
-          .asyncMap((adRequest) async => _requestAd(adRequest)));
+          .asyncMap((adRequest) async {
+            print("Requesting ad $adRequest");
+            return _requestAd(adRequest);
+          }));
         
         yield AdStreamingState();
         break;
-      case AdEventId.UpdateAdImpressions:
+      case AdEventId.UpdateUserActivity:
+        var ev = event as UserActivityEvent;
+        _usageStream.add(ev.value);
         break;
-      case AdEventId.CloseAd:
+      case AdEventId.UpdateSystemActivity:
+        var ev = event as UserActivityEvent;
+        _appActivityStream.add(ev.value);
+        break;
+      case AdEventId.AdClosed:
+        _visibleAds.remove(event.adConfiguration.adType);
+        break;
       case AdEventId.EndAdStream:
         _visibleAds.remove(event.adConfiguration.adType);
         close();
@@ -92,40 +115,47 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   /// cheap ads are shown often, expensive ones very little
   /// create adaptive ad profiling
   Future<AdEvent> _createAdEvent(AdEvent previousEvent, double value) async {
-    AdStreamConfiguration configuration;
-    var difference = _adMinimumThreshold - value;
+    if(_adHistoryStream.value == null)
+      return previousEvent;
+
+    double difference = _adMinimumThreshold - value;
+    AdType requestedAd = previousEvent.adConfiguration.adType;
 
     //request a specific ad
     if(difference < .5)
     {
-      var adUnitId = configuration.adUnitIds["googleAdMob:bannerAdUnitId"];
-      configuration = AdStreamConfiguration(AdType.Banner, adUnitId, keywords: previousEvent.adConfiguration.keywords);
+      requestedAd = AdType.Banner;
     }
     else if (difference > .5 && difference < .75)
     {
-      var adUnitId = configuration.adUnitIds["googleAdMob:intersitialAdUnitId"];
-      configuration = AdStreamConfiguration(AdType.Interstitial, adUnitId, keywords: previousEvent.adConfiguration.keywords);
+      requestedAd = difference % 2 != 1 ?  AdType.Interstitial : AdType.InterstitialVideo;
     }
     else if (difference > .75 && difference < .85)
     {
-      var adUnitId = configuration.adUnitIds["googleAdMob:nativeAdUnitId"];
-      configuration = AdStreamConfiguration(AdType.Native, adUnitId, keywords: previousEvent.adConfiguration.keywords);
+      //requestedAd = difference % 2 != 1 ? AdType.Native : AdType.NativeVideo;
     }
     else if (difference > .85 && difference < .9)
     {
-      var adUnitId = configuration.adUnitIds["googleAdMob:rewardAdUnitId"];
-      configuration = AdStreamConfiguration(AdType.Reward, adUnitId, keywords: previousEvent.adConfiguration.keywords);
+      requestedAd = AdType.Reward;
     }
     else if (difference > .9 && difference < 1)
     {
-      var adUnitId = configuration.adUnitIds["googleAdMob:internalAdUnitId"];
-      configuration = AdStreamConfiguration(AdType.Internal, adUnitId, keywords: previousEvent.adConfiguration.keywords);
+      //requestedAd = AdType.Internal;
     }
 
-    return AdEvent(AdEventId.StreamAd, adConfiguration: configuration); 
+    AdEvent newAdEvent = AdEvent(AdEventId.StreamAd, 
+      adConfiguration: previousEvent.adConfiguration.copy(adType: requestedAd));
 
-    //AdType nextAd = previousEvent.adConfiguration.adType;
+    if(requestedAd == AdType.Banner && previousEvent == newAdEvent)
+    {
+      print("New event ignored for being a duplicate $newAdEvent");
+      return null;
+    }
+
+    return newAdEvent;
+
     //move up a level
+    //use nodes to create a hierarchy
     // if(previousEvent.adConfiguration.adType == AdType.Banner)
     //   configuration = AdConfiguration(AdType.Interstitial, "", keywords: previousEvent.adConfiguration.keywords);
     // else if(previousEvent.adConfiguration.adType == AdType.Interstitial)
@@ -155,9 +185,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   }
 
   Future<Ad> _requestAd(AdEvent event) async {
-    return _adService
-              .loadAd(event.adConfiguration)
-              .requestAd(event.adConfiguration)
+    return _adService.requestAd(event.adConfiguration)
               .then((ad) {
                 _visibleAds.add(event.adConfiguration.adType);
                 _adHistoryStream.add(event);
@@ -165,14 +193,21 @@ class AdBloc extends Bloc<AdEvent, AdState> {
               });
   }
 
-  void _resetStreams() {
-    //_appActivityStream?.close();
-
-    //_usageStream?.close();
-
-    _timerStream = Stream.periodic(Duration(seconds: _adIntervalSeconds)).map((seconds)
+  void _adEventCallback(AdEventId event) {
+    switch(event)
     {
-      return -_adMinimumThreshold;
+      case AdEventId.AdClosed:
+        add(AdEvent(AdEventId.AdClosed));
+        break;
+      default:
+        break;
+    }
+  }
+
+  void _resetStreams() {
+    _timerStream = Stream.periodic(Duration(seconds: adIntervalSeconds)).map((seconds)
+    {
+      return _adMinimumThreshold;
     });
   }
 }
