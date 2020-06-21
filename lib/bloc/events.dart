@@ -1,4 +1,3 @@
-import 'package:dev_libraries/dev_libraries.dart';
 import 'package:dev_libraries/models/adconfiguration.dart';
 import 'package:equatable/equatable.dart';
 
@@ -6,22 +5,22 @@ enum AdEventId {
   //load
   LoadAd,
   AdLoaded,
+  AdRequest,
 
   StartAdStream,
-  StreamAd,
   EndAdStream,
 
-  //user interaction events
+  /// user interaction events
   AdClosed,
   AdImpression,
   AdClicked,
   
-  //events for usage activity
+  /// events for usage activity
   UpdateUserActivity,
 
   UpdateSystemActivity,
   
-  //events for system activity
+  /// events for system activity
   AppClosed,
 
   //error
@@ -31,8 +30,9 @@ enum AdEventId {
 class AdEvent extends Equatable {
   final AdEventId id;
   final AdConfiguration adConfiguration;
+  final DateTime timestamp;
 
-  AdEvent(this.id, { this.adConfiguration });
+  AdEvent(this.id, { this.adConfiguration, DateTime timestamp }) : timestamp = timestamp ?? DateTime.now();
 
   AdEvent copy({AdEventId id, AdConfiguration configuration}) =>
     AdEvent(id ?? this.id, adConfiguration: configuration ?? this.adConfiguration);
@@ -41,15 +41,20 @@ class AdEvent extends Equatable {
   List<Object> get props => [id, adConfiguration];
 
   @override
-  String toString() => 'AdEvent { id: $id, configuration: $adConfiguration }';
+  String toString() => 'AdEvent { timestamp: $timestamp, id: $id, configuration: $adConfiguration }';
 }
 
-class UserActivityEvent extends AdEvent{
+class AdDataPointEvent extends AdEvent {
+  final String name;
   final double value;
-  UserActivityEvent(AdEventId id, this.value) : super(AdEventId.UpdateUserActivity);
-}
+  
+  AdDataPointEvent(this.value, { this.name, AdConfiguration adConfiguration, DateTime timestamp }) 
+    : super(AdEventId.UpdateUserActivity, adConfiguration: adConfiguration, timestamp: timestamp);
 
-class SystemActivityEvent extends AdEvent{
-  final double value;
-  SystemActivityEvent(AdEventId id, this.value) : super(AdEventId.UpdateSystemActivity);
+  @override
+  String toString() => 'AdDataPointEvent { timestamp: $timestamp, id: $id, value: $value, configuration: $adConfiguration }';
+
+  @override
+  AdDataPointEvent copy({AdEventId id, AdConfiguration configuration, double value}) =>
+    AdDataPointEvent(value ?? this.value, adConfiguration: configuration ?? this.adConfiguration);
 }

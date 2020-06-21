@@ -5,6 +5,7 @@ import 'package:dev_libraries/bloc/events.dart';
 import 'package:dev_libraries/models/ad.dart';
 import 'package:dev_libraries/models/adconfiguration.dart';
 import 'package:dev_libraries/models/adservice.dart';
+import 'package:dev_libraries/models/adsize.dart';
 
 class AdMobService extends AdService {
   AdmobBanner _bannerAd;
@@ -60,7 +61,7 @@ class AdMobService extends AdService {
       case AdType.Banner:
         _bannerAd = AdmobBanner(
             adUnitId: adUnitId,
-            adSize: AdmobBannerSize.BANNER,
+            adSize: configuration.adSize == null ? AdmobBannerSize.BANNER : _mapToAdSize(configuration.adSize),
             listener: (AdmobAdEvent event, Map<String, dynamic> args) {
               if(eventListener != null)
                 eventListener(_mapToAdEventId(event));
@@ -113,10 +114,11 @@ class AdMobService extends AdService {
         return await _showRewardAd();
       default:
         return throw Exception("Invalid request type: ${configuration.adType}");
-        break;
     }
   }
 
+  AdmobBannerSize _mapToAdSize(AdSize adSize) => AdmobBannerSize(height: adSize.height, width: adSize.width);
+  
   AdEventId _mapToAdEventId(AdmobAdEvent eventId) {
     switch(eventId)
     {
@@ -124,8 +126,12 @@ class AdMobService extends AdService {
         return AdEventId.AdClosed;
       case AdmobAdEvent.loaded:
         return AdEventId.AdLoaded;
+      case AdmobAdEvent.failedToLoad:
+      //case AdmobAdEvent.completed
+      //case AdmobAdEvent.leftApplication:
+        return throw Exception("Failed to load ad");
       default:
-        return null;
+        return throw Exception("Invalid event type: $eventId");
     }
   }
   
