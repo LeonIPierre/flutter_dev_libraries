@@ -1,4 +1,4 @@
-import 'package:dev_libraries/bloc/adbloc.dart';
+import 'package:dev_libraries/bloc/ads/adbloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

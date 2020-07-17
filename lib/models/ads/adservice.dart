@@ -1,6 +1,7 @@
-import 'package:dev_libraries/bloc/events.dart';
-import 'package:dev_libraries/models/ad.dart';
-import 'package:dev_libraries/models/adconfiguration.dart';
+import 'package:dev_libraries/bloc/ads/events.dart';
+import 'package:dev_libraries/models/ads/ad.dart';
+
+import 'adconfiguration.dart';
 
 enum AdType {
   Any,

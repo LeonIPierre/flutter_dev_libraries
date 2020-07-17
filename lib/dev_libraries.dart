@@ -1,9 +1,8 @@
 library dev_libraries;
 
-export 'bloc/adbloc.dart';
+export 'bloc/ads/ads.dart';
 export 'bloc/blocmanager.dart';
-export 'bloc/events.dart';
-export 'bloc/states.dart';
+export 'bloc/app/app.dart';
 
 export 'services/logging/appspectorservice.dart';
 export 'services/analytics/facebookappeventservice.dart';

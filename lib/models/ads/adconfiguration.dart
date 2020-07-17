@@ -1,6 +1,6 @@
-import 'package:dev_libraries/models/adservice.dart';
-import 'package:dev_libraries/models/adsize.dart';
 import 'package:equatable/equatable.dart';
+import 'adservice.dart';
+import 'adsize.dart';
 
 class AdConfiguration extends Equatable {
   final AdType adType;

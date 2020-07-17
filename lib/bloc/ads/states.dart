@@ -1,4 +1,4 @@
-import 'package:dev_libraries/models/ad.dart';
+import 'package:dev_libraries/models/ads/ad.dart';
 
 abstract class AdState {
 }

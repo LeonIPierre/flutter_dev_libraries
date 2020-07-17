@@ -15,10 +15,11 @@ dependencies:
   rxdart: ^0.24.0
   queries: ^0.1.12
   equatable: ^1.0.0
+  flat: ^ 0.2.0
 
   #frameworks
-  bloc: ^4.0.0
-  flutter_bloc: ^4.0.0
+  bloc: ^5.0.0
+  flutter_bloc: ^5.0.0
 
   #services
   appspector: '0.1.0'

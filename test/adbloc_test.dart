@@ -1,8 +1,8 @@
-import 'package:dev_libraries/bloc/adbloc.dart';
-import 'package:dev_libraries/bloc/events.dart';
-import 'package:dev_libraries/models/ad.dart';
-import 'package:dev_libraries/models/adconfiguration.dart';
-import 'package:dev_libraries/models/adservice.dart';
+import 'package:dev_libraries/bloc/ads/adbloc.dart';
+import 'package:dev_libraries/bloc/ads/events.dart';
+import 'package:dev_libraries/models/ads/ad.dart';
+import 'package:dev_libraries/models/ads/adconfiguration.dart';
+import 'package:dev_libraries/models/ads/adservice.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 

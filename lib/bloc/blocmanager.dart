@@ -1,14 +1,14 @@
 import 'package:bloc/bloc.dart';
-import 'package:dev_libraries/models/loggableevent.dart';
-import 'package:dev_libraries/models/loggablestate.dart';
+import 'package:dev_libraries/models/logging/loggableevent.dart';
+import 'package:dev_libraries/models/logging/loggablestate.dart';
 import 'package:dev_libraries/services/analytics/analyticsservice.dart';
 import 'package:dev_libraries/services/logging/logservice.dart';
 
-class BlocManager extends BlocDelegate {
+class DefaultBlocManager extends BlocDelegate {
   final AnalyticsService _analyticsService;
   final LogService _loggingService;
 
-  BlocManager({AnalyticsService analyticsService, LogService loggingService})
+  DefaultBlocManager({AnalyticsService analyticsService, LogService loggingService})
     : _analyticsService = analyticsService, _loggingService = loggingService;
 
   // @override

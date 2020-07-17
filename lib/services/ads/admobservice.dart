@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:admob_flutter/admob_flutter.dart';
-import 'package:dev_libraries/bloc/events.dart';
-import 'package:dev_libraries/models/ad.dart';
-import 'package:dev_libraries/models/adconfiguration.dart';
-import 'package:dev_libraries/models/adservice.dart';
-import 'package:dev_libraries/models/adsize.dart';
+import 'package:dev_libraries/bloc/ads/events.dart';
+import 'package:dev_libraries/models/ads/ad.dart';
+import 'package:dev_libraries/models/ads/adconfiguration.dart';
+import 'package:dev_libraries/models/ads/adservice.dart';
+import 'package:dev_libraries/models/ads/adsize.dart';
 
 class AdMobService extends AdService {
   AdmobBanner _bannerAd;

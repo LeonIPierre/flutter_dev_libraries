@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
-import 'package:dev_libraries/bloc/states.dart';
-import 'package:dev_libraries/models/ad.dart';
-import 'package:dev_libraries/models/adconfiguration.dart';
-import 'package:dev_libraries/models/adservice.dart';
-import 'package:dev_libraries/models/adstats.dart';
+import 'package:dev_libraries/bloc/ads/states.dart';
+import 'package:dev_libraries/models/ads/ad.dart';
+import 'package:dev_libraries/models/ads/adconfiguration.dart';
+import 'package:dev_libraries/models/ads/adservice.dart';
+import 'package:dev_libraries/models/ads/adtypenode.dart';
 import 'package:dev_libraries/models/node.dart';
 import 'package:dev_libraries/services/ads/admobservice.dart';
-import 'package:queries/collections.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'events.dart';

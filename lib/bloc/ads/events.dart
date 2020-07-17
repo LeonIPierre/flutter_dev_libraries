@@ -1,4 +1,5 @@
-import 'package:dev_libraries/models/adconfiguration.dart';
+
+import 'package:dev_libraries/models/ads/adconfiguration.dart';
 import 'package:equatable/equatable.dart';
 
 enum AdEventId {
