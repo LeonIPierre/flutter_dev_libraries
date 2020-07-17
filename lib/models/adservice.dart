@@ -15,12 +15,12 @@ enum AdType {
 }
 
 abstract class AdService {
-  String getAdUnitId(AdStreamConfiguration adConfiguration);
-
   void initialize(String appId);
 
-  Future<AdConfiguration> loadAd(AdConfiguration configuration, { Function(AdEventId) eventListener });
-  
+  AdConfiguration loadAd(AdConfiguration configuration, { Function(AdEventId) eventListener });
+
+  Future<AdConfiguration> loadAdAsync(AdConfiguration configuration, { Function(AdEventId, AdConfiguration) eventListener });
+
   Future<Ad> requestAd(AdConfiguration configuration);
 
   void dispose();

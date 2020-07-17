@@ -4,29 +4,17 @@ import 'package:equatable/equatable.dart';
 
 class AdConfiguration extends Equatable {
   final AdType adType;
-  final String adUnitId;
   final AdSize adSize;
   final List<String> keywords;
 
-  AdConfiguration(this.adType, this.adUnitId, { this.adSize, this.keywords });
+  AdConfiguration(this.adType, { this.adSize, this.keywords });
 
   AdConfiguration copy({AdType adType, String adUnitId, List<String> keywords }) 
-    => AdConfiguration(adType ?? this.adType, adUnitId ?? this.adUnitId, keywords: keywords ?? this.keywords);
+    => AdConfiguration(adType ?? this.adType, keywords: keywords ?? this.keywords);
 
   @override
-  List<Object> get props => [adType, adUnitId, keywords];
+  List<Object> get props => [adType, keywords];
 
   @override
-  String toString() => 'AdConfiguration { adType: $adType, unitId: $adUnitId, keywords: $keywords }';
-}
-
-class AdStreamConfiguration extends AdConfiguration {
-  final Map<String, dynamic> adUnitIds;
-  AdStreamConfiguration(AdType firstAdType, this.adUnitIds, { List<String> keywords }) : super(firstAdType, "", keywords: keywords);
-
-  @override
-  List<Object> get props => [adType, adUnitIds, keywords];
-
-  @override
-  String toString() => 'AdStreamConfiguration { adType: $adType, unitIds: $adUnitIds, keywords: $keywords }';
+  String toString() => 'AdConfiguration { adType: $adType, keywords: $keywords }';
 }

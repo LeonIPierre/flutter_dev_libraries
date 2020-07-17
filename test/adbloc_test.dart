@@ -16,9 +16,9 @@ void main() {
     AdConfiguration configuration;
     
     setUp(() {
-      configuration = AdConfiguration(AdType.Banner, "");
+      configuration = AdConfiguration(AdType.Banner);
       adBloc = AdBloc("", adService: mockAdService);
-      when(mockAdService.loadAd(configuration)).thenAnswer((_) => Future.value(configuration));
+      //when(mockAdService.loadAd(configuration)).thenAnswer((_) => Future.value(configuration));
       when(mockAdService.requestAd(configuration)).thenAnswer((_) => Future.value(Ad(null)));
     });
 

@@ -14,6 +14,7 @@ enum AdEventId {
   AdClosed,
   AdImpression,
   AdClicked,
+  AdCompleted,
   
   /// events for usage activity
   UpdateUserActivity,
