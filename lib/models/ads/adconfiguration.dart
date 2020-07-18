@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'adservice.dart';
+import 'ad.dart';
 import 'adsize.dart';
 
 class AdConfiguration extends Equatable {

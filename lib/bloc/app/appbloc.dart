@@ -8,11 +8,12 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 
 class AppBloc extends Bloc<AppIntializedEvent, AppState> {
+  Map<String, dynamic> configuration = Map<String, dynamic>();
+
   final String configFilePath;
   final String delimiter;
   DefaultBlocObserver _blocObserver;
-  Map<String, dynamic> _configuration = Map<String, dynamic>();
-
+  
   AppBloc(
       {this.configFilePath = "assets/config.json",
       this.delimiter = ":",
@@ -20,7 +21,7 @@ class AppBloc extends Bloc<AppIntializedEvent, AppState> {
     _blocObserver = blocManager ??
         DefaultBlocObserver(
             loggingService: AppSpectorService(
-                androidKey: _configuration["appSpector:androidApiKey"]));
+                androidKey: configuration["appSpector:androidApiKey"]));
   }
 
   @override
@@ -28,7 +29,7 @@ class AppBloc extends Bloc<AppIntializedEvent, AppState> {
     yield AppLoadingState();
 
     yield await rootBundle.loadString(configFilePath).then((content) {
-      _configuration = flatten(json.decode(content), delimiter: delimiter);
+      configuration = flatten(json.decode(content), delimiter: delimiter);
       Bloc.observer = Bloc.observer ?? _blocObserver;
       
       return AppInitializedState();

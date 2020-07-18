@@ -1,6 +1,6 @@
 
 import 'package:dev_libraries/models/node.dart';
-import 'adservice.dart';
+import 'ad.dart';
 
 class AdTypeNode {
 

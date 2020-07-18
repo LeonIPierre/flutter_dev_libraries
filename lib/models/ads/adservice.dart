@@ -3,18 +3,6 @@ import 'package:dev_libraries/models/ads/ad.dart';
 
 import 'adconfiguration.dart';
 
-enum AdType {
-  Any,
-
-  Internal, //ads for other products I own
-  Banner,
-  Interstitial, //full screen ad
-  InterstitialVideo, //full screen video ad
-  Reward,
-  Native,
-  NativeVideo
-}
-
 abstract class AdService {
   void initialize(String appId);
 
