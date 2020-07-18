@@ -3,11 +3,8 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/bloc/ads/states.dart';
-import 'package:dev_libraries/models/ads/ad.dart';
-import 'package:dev_libraries/models/ads/adconfiguration.dart';
-import 'package:dev_libraries/models/ads/adservice.dart';
-import 'package:dev_libraries/models/ads/adtypenode.dart';
 import 'package:dev_libraries/models/node.dart';
+import 'package:dev_libraries/models/ads/ads.dart';
 import 'package:dev_libraries/services/ads/admobservice.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -43,13 +40,10 @@ class AdBloc extends Bloc<AdEvent, AdState> {
 
   double _maxValue = 0;
 
-  AdBloc(String appId, {AdService adService, Map<String, dynamic> configuration, this.adIntervalSeconds = 30}) {
+  AdBloc(String appId, {AdService adService, Map<String, dynamic> configuration, this.adIntervalSeconds = 30}) : super(AdLoadingState()) {
     Map<String, dynamic> adUnitIds = Map.from(configuration)..removeWhere((k, v) => !k.contains("AdUnitId"));
     this._adService = adService ?? AdMobService(appId, adUnitIds); 
   }
-
-  @override
-  AdState get initialState => AdLoadingState();
 
   @override
   Stream<AdState> mapEventToState(AdEvent event) async* {  

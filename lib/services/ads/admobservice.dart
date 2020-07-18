@@ -26,7 +26,7 @@ class AdMobService extends AdService {
 
   @override
   void initialize(String appId) {
-    Admob.initialize(appId);
+    Admob.initialize();
   }
 
   @override
