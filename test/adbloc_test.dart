@@ -1,5 +1,5 @@
-import 'package:dev_libraries/bloc/ads/adbloc.dart';
-import 'package:dev_libraries/bloc/ads/events.dart';
+import 'package:dev_libraries/blocs/ads/adbloc.dart';
+import 'package:dev_libraries/blocs/ads/events.dart';
 import 'package:dev_libraries/models/ads/ad.dart';
 import 'package:dev_libraries/models/ads/adconfiguration.dart';
 import 'package:dev_libraries/models/ads/adservice.dart';

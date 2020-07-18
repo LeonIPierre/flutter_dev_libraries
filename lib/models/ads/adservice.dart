@@ -1,4 +1,4 @@
-import 'package:dev_libraries/bloc/ads/ads.dart';
+import 'package:dev_libraries/blocs/ads/ads.dart';
 import 'package:dev_libraries/models/ads/ad.dart';
 
 import 'adconfiguration.dart';
