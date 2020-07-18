@@ -1,8 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:dev_libraries/bloc/app/app.dart';
-
-import 'package:dev_libraries/bloc/blocobserver.dart';
-import 'package:dev_libraries/services/logging/appspectorservice.dart';
+import 'package:dev_libraries/dev_libraries.dart';
 import 'package:flat/flat.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
