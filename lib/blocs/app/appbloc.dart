@@ -1,36 +1,48 @@
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/dev_libraries.dart';
-import 'package:flat/flat.dart';
+import 'package:dev_libraries/repositories/assetbundlerepository.dart';
+import 'package:dev_libraries/repositories/sharedpreferencesrepository.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert';
 
-class AppBloc extends Bloc<AppIntializedEvent, AppState> {
-  Map<String, dynamic> configuration = Map<String, dynamic>();
-
-  final String configFilePath;
-  final String delimiter;
+class AppBloc extends Bloc<AppEvent, AppState> {
+  Map<String, dynamic> _configuration = Map<String, dynamic>();
   DefaultBlocObserver _blocObserver;
+  AssetBundleRepository _bundleRepository;
+  SharedPreferencesRepository _preferencesRepository;
   
   AppBloc(
-      {this.configFilePath = "assets/config.json",
-      this.delimiter = ":",
-      DefaultBlocObserver blocManager}) : super(AppUnitializedState()) {
-    _blocObserver = blocManager ??
-        DefaultBlocObserver(
-            loggingService: AppSpectorService(
-                androidKey: configuration["appSpector:androidApiKey"]));
-  }
+      {String configFilePath, String delimiter,
+      DefaultBlocObserver blocObserver,
+      AssetBundleRepository bundleRepository,
+      SharedPreferencesRepository preferencesRepository})
+      : _blocObserver = blocObserver,
+        _bundleRepository = bundleRepository ?? AssetBundleRepository(bundle: rootBundle, configFilePath: configFilePath, delimiter: delimiter),
+        _preferencesRepository = preferencesRepository ?? SharedPreferencesRepository(),
+        super(AppUnitializedState());
 
   @override
-  Stream<AppState> mapEventToState(AppIntializedEvent event) async* {
-    yield AppLoadingState();
+  Stream<AppState> mapEventToState(AppEvent event) async* {
+    switch (event.id) {
+      case AppEventIds.LoadAllConfigurations:
+        yield AppLoadingState();
 
-    yield await rootBundle.loadString(configFilePath).then((content) {
-      configuration = flatten(json.decode(content), delimiter: delimiter);
-      Bloc.observer = Bloc.observer ?? _blocObserver;
-      
-      return AppInitializedState();
-    })
-    .catchError((onError) => AppErrorState());
+        List<String> keys = (event as AppIntializedEvent).keys;
+
+        yield await Future.wait([_bundleRepository.getAll(keys: keys), _preferencesRepository.getAll(keys: keys)])
+            .then((values) {
+              values.map((value) => _configuration.addAll(value));
+
+              _blocObserver = _blocObserver ??
+                  DefaultBlocObserver(
+                      loggingService: AppSpectorService(
+                          androidKey: _configuration["appSpector:androidApiKey"]));
+              Bloc.observer = Bloc.observer ?? _blocObserver;
+            })
+            .catchError((onError) => AppErrorState())
+            .whenComplete(() => AppInitializedState(_configuration));
+        break;
+      case AppEventIds.SaveConfiguration:
+        break;
+    }
   }
 }

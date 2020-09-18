@@ -7,4 +7,8 @@ class AppLoadingState extends AppState {}
 
 class AppErrorState extends AppState {}
 
-class AppInitializedState extends AppState {}
+class AppInitializedState extends AppState {
+  final Map<String, dynamic> configuration;
+
+  AppInitializedState(this.configuration);
+}
