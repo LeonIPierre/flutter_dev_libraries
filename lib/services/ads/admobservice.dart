@@ -15,7 +15,7 @@ class AdMobService extends AdService {
   final Map<String, dynamic> _adUnitIds;
 
   AdMobService(String appId, this._adUnitIds) {
-    initialize(appId);
+    //initialize(appId);
   }
 
   @override
