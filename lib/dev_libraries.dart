@@ -4,7 +4,7 @@ export 'models/node.dart';
 export 'blocs/blocobserver.dart';
 
 //configuration
-export 'blocs/app/app.dart';
+export 'blocs/configuration/configuration.dart';
 
 //logging
 export 'models/logging/logging.dart';
