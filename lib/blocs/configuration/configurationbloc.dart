@@ -13,10 +13,9 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
   SharedPreferencesRepository _preferencesRepository;
   
   ConfigurationBloc(
-      {String configFilePath, String delimiter,
-      DefaultBlocObserver blocObserver,
-      AssetBundleRepository bundleRepository,
-      SharedPreferencesRepository preferencesRepository})
+      { DefaultBlocObserver blocObserver,
+      AssetBundleRepository bundleRepository, String configFilePath, String delimiter,
+      SharedPreferencesRepository preferencesRepository })
       : _blocObserver = blocObserver,
         _bundleRepository = bundleRepository ?? AssetBundleRepository(bundle: rootBundle, configFilePath: configFilePath, delimiter: delimiter),
         _preferencesRepository = preferencesRepository ?? SharedPreferencesRepository(),
@@ -39,11 +38,22 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
                       loggingService: AppSpectorService(
                           androidKey: _configuration["appSpector:androidApiKey"]));
               Bloc.observer = Bloc.observer ?? _blocObserver;
+
+              return ConfigurationInitializedState(_configuration);
             })
-            .catchError((onError) => ConfigurationErrorState())
-            .whenComplete(() => ConfigurationInitializedState(_configuration));
+            .catchError((onError) => ConfigurationErrorState());
         break;
       case ConfigurationEventIds.SaveConfiguration:
+        var ev = (event as ConfigurationChangedEvent);
+        
+        yield await _preferencesRepository.save(ev.key, ev.value)
+          .then((success) {
+            if(success) {
+              _configuration.update(ev.key, (value) => ev.value);
+              return ConfigurationInitializedState(_configuration);
+            }
+          })
+          .catchError((onError) => ConfigurationErrorState());
         break;
     }
   }

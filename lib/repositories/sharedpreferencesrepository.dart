@@ -14,14 +14,26 @@ class SharedPreferencesRepository {
         keys.forEach((key) {
           configuration.update(key, (value) => preferences.get(key));
         });
+        
         return configuration;
       });
   }
 
-  void save(String key, dynamic value) async {
-    await preferences
+  Future<bool> save<T>(String key, T value) async {
+    return await preferences
       .then((preferences) {
-        //preferences.
+          if(value is bool)
+            return preferences.setBool(key, value);
+          else if(value is String)
+            return preferences.setString(key, value);
+          else if(value is List<String>)
+            return preferences.setStringList(key, value);
+          else if(value is double)
+            return preferences.setDouble(key, value);
+          else if(value is int)
+            return preferences.setInt(key, value);
+          else
+            throw Exception("unhandled type");
       });
   }
 }
