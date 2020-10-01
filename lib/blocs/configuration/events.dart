@@ -1,3 +1,5 @@
+import 'package:dev_libraries/repositories/configurationrepository.dart';
+
 enum ConfigurationEventIds {
   LoadAllConfigurations,
   SaveConfiguration,
@@ -15,7 +17,10 @@ class ConfigurationIntializedEvent extends ConfigurationEvent {
 }
 
 class ConfigurationChangedEvent extends ConfigurationEvent {
+  final Type repository;
   final String key;
   final dynamic value;
-  ConfigurationChangedEvent(this.key, this.value) : super(ConfigurationEventIds.SaveConfiguration);
+  ConfigurationChangedEvent(this.repository, this.key, this.value) 
+    : assert(repository is ConfigurationRepository),
+    super(ConfigurationEventIds.SaveConfiguration);
 }

@@ -16,6 +16,8 @@ export 'services/analytics/facebookappeventservice.dart';
 export 'blocs/authentication/authenticationbloc.dart';
 export 'services/authentication/authenticationrepository.dart';
 
+export 'blocs/login/login_cubit.dart';
+
 //ads
 //export 'models/ads/ads.dart';
 //export 'blocs/ads/ads.dart';

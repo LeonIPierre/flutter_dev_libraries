@@ -1,6 +1,8 @@
+import 'package:dev_libraries/repositories/configurationrepository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SharedPreferencesRepository {
+
+class SharedPreferencesRepository extends ConfigurationRepository {
   final Future<SharedPreferences> preferences = SharedPreferences.getInstance();
 
   Future<Map<String, dynamic>> getAll({ List<String> keys }) async {
@@ -12,7 +14,8 @@ class SharedPreferencesRepository {
         Map<String, dynamic> configuration = Map<String, dynamic>();
 
         keys.forEach((key) {
-          configuration.update(key, (value) => preferences.get(key));
+          var prefValue = preferences.get(key);
+          configuration.update(key, (value) => prefValue, ifAbsent: () => prefValue);
         });
         
         return configuration;

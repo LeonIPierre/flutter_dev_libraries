@@ -8,8 +8,10 @@ import 'package:dev_libraries/services/authentication/authenticationrepository.d
 import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
 
-class AuthenticationBloc
-    extends Bloc<AuthenticationEvent, AuthenticationState> {
+class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
+  final AuthenticationRepository _authenticationRepository;
+  StreamSubscription<User> _userSubscription;
+  
   AuthenticationBloc({
     @required AuthenticationRepository authenticationRepository,
   })  : assert(authenticationRepository != null),
@@ -19,9 +21,6 @@ class AuthenticationBloc
       (user) => add(AuthenticationUserChanged(user)),
     );
   }
-
-  final AuthenticationRepository _authenticationRepository;
-  StreamSubscription<User> _userSubscription;
 
   @override
   Stream<AuthenticationState> mapEventToState(

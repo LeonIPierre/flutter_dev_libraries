@@ -1,9 +1,10 @@
+import 'package:dev_libraries/repositories/configurationrepository.dart';
 import 'package:flat/flat.dart';
 import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 import 'dart:convert';
 import 'dart:io' as io;
 
-class AssetBundleRepository {
+class AssetBundleRepository extends ConfigurationRepository {
   final AssetBundle _bundle;
   final String _configFilePath;
   final String _delimiter;
@@ -18,5 +19,5 @@ class AssetBundleRepository {
       .then((value) => _bundle.loadString(_configFilePath))
       .then((content) => flatten(json.decode(content), delimiter: _delimiter));
   
-  void save(String key, dynamic value) => throw Exception("Not implemented");
+  Future<bool> save<T>(String key, T value) async => throw Exception("Not implemented");
 }
