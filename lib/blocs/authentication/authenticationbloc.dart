@@ -3,21 +3,21 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/blocs/authentication/events.dart';
 import 'package:dev_libraries/blocs/authentication/states.dart';
+import 'package:dev_libraries/models/authentication/authenticationservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
-import 'package:dev_libraries/services/authentication/authenticationrepository.dart';
 import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
-  final AuthenticationRepository _authenticationRepository;
+  final AuthenticationService _authenticationService;
   StreamSubscription<User> _userSubscription;
   
   AuthenticationBloc({
-    @required AuthenticationRepository authenticationRepository,
-  })  : assert(authenticationRepository != null),
-        _authenticationRepository = authenticationRepository,
+    @required AuthenticationService authenticationService,
+  })  : assert(authenticationService != null),
+        _authenticationService = authenticationService,
         super(const AuthenticationState.unknown()) {
-    _userSubscription = _authenticationRepository.user.listen(
+    _userSubscription = _authenticationService.user.listen(
       (user) => add(AuthenticationUserChanged(user)),
     );
   }
@@ -29,7 +29,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     if (event is AuthenticationUserChanged) {
       yield _mapAuthenticationUserChangedToState(event);
     } else if (event is AuthenticationLogoutRequested) {
-      unawaited(_authenticationRepository.logOut());
+      unawaited(_authenticationService.logOut());
     }
   }
 
