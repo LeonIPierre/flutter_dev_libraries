@@ -1,7 +1,6 @@
 import 'package:dev_libraries/repositories/configurationrepository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class SharedPreferencesRepository extends ConfigurationRepository {
   final Future<SharedPreferences> preferences = SharedPreferences.getInstance();
 
