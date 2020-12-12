@@ -1,5 +1,4 @@
-import 'package:dev_libraries/models/authentication/user.dart';
-import 'package:equatable/equatable.dart';
+part of 'authenticationbloc.dart';
 
 abstract class AuthenticationEvent extends Equatable {
   const AuthenticationEvent();
@@ -7,6 +6,8 @@ abstract class AuthenticationEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class CreateNewUserEvent extends AuthenticationEvent {}
 
 class AuthenticationUserChanged extends AuthenticationEvent {
   const AuthenticationUserChanged(this.user);

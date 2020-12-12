@@ -1,5 +1,4 @@
-import 'package:dev_libraries/models/authentication/user.dart';
-import 'package:equatable/equatable.dart';
+part of 'authenticationbloc.dart';
 
 enum AuthenticationStatus { authenticated, unauthenticated, unknown }
 

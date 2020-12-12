@@ -1,12 +1,14 @@
 import 'dart:async';
 
+import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
-import 'package:dev_libraries/blocs/authentication/events.dart';
-import 'package:dev_libraries/blocs/authentication/states.dart';
 import 'package:dev_libraries/models/authentication/authenticationservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
 import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
+
+part 'events.dart';
+part 'states.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final AuthenticationService _authenticationService;
@@ -28,7 +30,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   ) async* {
     if (event is AuthenticationUserChanged) {
       yield _mapAuthenticationUserChangedToState(event);
-    } else if (event is AuthenticationLogoutRequested) {
+    } 
+    else if(event is CreateNewUserEvent) {
+      yield await _authenticationService.createUser()
+        .then((_) => AuthenticationState.unauthenticated());
+    }
+    else if (event is AuthenticationLogoutRequested) {
       unawaited(_authenticationService.logOut());
     }
   }
