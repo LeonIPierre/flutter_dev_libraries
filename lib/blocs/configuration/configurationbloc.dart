@@ -6,12 +6,10 @@ import 'package:dev_libraries/repositories/configurationrepository.dart';
 
 class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
   Map<String, dynamic> _configuration = Map<String, dynamic>();
-  DefaultBlocObserver _blocObserver;
   List<ConfigurationRepository> _repositories = [];
 
-  ConfigurationBloc({ DefaultBlocObserver blocObserver, List<ConfigurationRepository> repositories })
-      : _blocObserver = blocObserver, 
-        _repositories = repositories,
+  ConfigurationBloc({ List<ConfigurationRepository> repositories })
+      : _repositories = repositories,
         super(ConfigurationUnitializedState());
 
   @override
@@ -27,15 +25,6 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
               values.forEach((element) {
                 _configuration.addAll(element);
               });
-
-              var loggingService;
-              
-              if(_configuration["appSpector:androidApiKey"] != null)
-                loggingService = AppSpectorService(androidKey: _configuration["appSpector:androidApiKey"]);
-
-              _blocObserver = _blocObserver ?? DefaultBlocObserver(
-                loggingService: loggingService);
-              Bloc.observer = Bloc.observer ?? _blocObserver;
  
               return ConfigurationInitializedState(_configuration);
             })
@@ -44,7 +33,7 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
       case ConfigurationEventIds.SaveConfiguration:
         var ev = (event as ConfigurationChangedEvent);
 
-        yield await _repositories.firstWhere((element) => element.runtimeType == ev.repository.runtimeType)
+      yield await _repositories.firstWhere((element) => element.runtimeType == ev.repository.runtimeType)
         .save(ev.key, ev.value)
         .then<ConfigurationState>((success) {
             if(success) {
