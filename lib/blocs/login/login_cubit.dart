@@ -60,7 +60,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> logInWithGoogle() async {
-    await _authenticationRepository.loginInWith(AuthenticationProvider.Google)
+    await _authenticationRepository.loginInWithProvider(AuthenticationProvider.Google)
     .then((_) => emit(LoginSuccessState()))
     .catchError((error) => emit(LoginFailedState(message: error.toString())));
   }

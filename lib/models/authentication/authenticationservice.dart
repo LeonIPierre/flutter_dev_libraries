@@ -11,12 +11,16 @@ enum AuthenticationProvider {
 abstract class AuthenticationService {
   Stream<User> get user;
 
+  Future<void> createUser();
+
   Future<void> signUp({
     @required String email,
     @required String password,
   });
 
-  Future<void> loginInWith(AuthenticationProvider provider);
+  Future<void> loginWithToken(String token);
+
+  Future<void> loginInWithProvider(AuthenticationProvider provider);
 
   Future<void> logInWithEmailAndPassword({
     @required String email,

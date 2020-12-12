@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dev_libraries/models/authentication/authenticationservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
+import 'package:http/http.dart' as http;
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
@@ -25,12 +27,15 @@ class LogOutFailure implements Exception {}
 class FirebaseAuthenticationRepository extends AuthenticationService {
   final firebase.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
+  final String _apiUrl;
 
   /// {@macro authentication_repository}
   FirebaseAuthenticationRepository({
+    String apiUrl,
     firebase.FirebaseAuth firebaseAuth,
     GoogleSignIn googleSignIn,
-  })  : _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
+  })  : _apiUrl = apiUrl,
+        _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
 
   /// Stream of [User] which will emit the current user when
@@ -39,6 +44,11 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   /// Emits [User.empty] if the user is not authenticated.
   Stream<User> get user => _firebaseAuth.authStateChanges().map((firebaseUser) =>
       firebaseUser == null ? User.empty : firebaseUser.toUser);
+
+  @override
+  Future<void> createUser() => http.get(_apiUrl)
+      .then((response) => User.fromJson(json.decode(response.body)))
+      .then((user) => loginWithToken(user.accesToken));
 
   /// Creates a new user with the provided [email] and [password].
   ///
@@ -59,7 +69,7 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   }
 
   @override
-  Future<void> loginInWith(AuthenticationProvider provider) async {
+  Future<void> loginInWithProvider(AuthenticationProvider provider) async {
     switch (provider) {
       case AuthenticationProvider.Facebook:
         // TODO: Handle this case.
@@ -85,6 +95,20 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
         break;
     }
   }
+
+  @override
+  Future<void> loginWithToken(String token) async =>
+    _firebaseAuth.signInWithCustomToken(token)
+      .catchError((error)
+      {
+        switch(error.code)
+        {
+          case 'custom-token-mismatch':
+          case 'invalid-custom-token':
+            break;
+        }
+      });
+  
 
   /// Signs in with the provided [email] and [password].
   ///
@@ -121,7 +145,6 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
 }
 
 extension on firebase.User {
-  User get toUser {
-    return User(id: uid, email: email, name: displayName);
-  }
+  User get toUser => User(id: uid, email: email, name: displayName, 
+    type: UserType.Anonymous);
 }
