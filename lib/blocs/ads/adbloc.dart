@@ -5,9 +5,11 @@ import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/models/ads/ads.dart';
 import 'package:dev_libraries/models/node.dart';
 import 'package:dev_libraries/services/ads/admobservice.dart';
+import 'package:equatable/equatable.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'ads.dart';
+part 'states.dart';
+part 'events.dart';
 
 class AdBloc extends Bloc<AdEvent, AdState> {
   final int adIntervalSeconds;

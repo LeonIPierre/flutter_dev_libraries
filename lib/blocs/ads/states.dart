@@ -1,4 +1,4 @@
-import 'package:dev_libraries/models/ads/ad.dart';
+part of 'adbloc.dart';
 
 abstract class AdState {
 }
