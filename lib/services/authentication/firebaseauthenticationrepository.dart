@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dev_libraries/models/authentication/authenticationservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
-import 'package:http/http.dart' as http;
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
@@ -27,15 +25,12 @@ class LogOutFailure implements Exception {}
 class FirebaseAuthenticationRepository extends AuthenticationService {
   final firebase.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
-  final String _apiUrl;
 
   /// {@macro authentication_repository}
   FirebaseAuthenticationRepository({
-    String apiUrl,
     firebase.FirebaseAuth firebaseAuth,
     GoogleSignIn googleSignIn,
-  })  : _apiUrl = apiUrl,
-        _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
+  })  : _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
 
   /// Stream of [User] which will emit the current user when
@@ -44,11 +39,6 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   /// Emits [User.empty] if the user is not authenticated.
   Stream<User> get user => _firebaseAuth.authStateChanges().map((firebaseUser) =>
       firebaseUser == null ? User.empty : firebaseUser.toUser);
-
-  @override
-  Future<void> createUser() => http.get(_apiUrl)
-      .then((response) => User.fromJson(json.decode(response.body)))
-      .then((user) => loginWithToken(user.accesToken));
 
   /// Creates a new user with the provided [email] and [password].
   ///
