@@ -28,5 +28,5 @@ abstract class PaymentService {
 
   Future<void> completeAllPayments(UnmodifiableListView<Receipt> products);
 
-  Future<UnmodifiableListView<Receipt>> getProductsAsync(UnmodifiableListView<String> productIds);
+  Future<UnmodifiableListView<Receipt>> getStoreProductsAsync(UnmodifiableListView<String> productIds);
 }

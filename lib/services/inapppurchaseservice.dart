@@ -18,7 +18,7 @@ class InAppPurchaseService extends PaymentService {
   }
 
   @override
-  Future<UnmodifiableListView<Receipt>> getProductsAsync(
+  Future<UnmodifiableListView<Receipt>> getStoreProductsAsync(
       UnmodifiableListView<String> productIds) async {
     return await _connection.isAvailable().then((success) {
       if (!success) throw Exception("Failed to connect to store");

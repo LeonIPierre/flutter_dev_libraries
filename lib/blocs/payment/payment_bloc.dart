@@ -7,7 +7,6 @@ import 'package:dev_libraries/models/products/product.dart';
 import 'package:dev_libraries/models/products/receipt.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_device_type/flutter_device_type.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 
 part 'payment_event.dart';
 part 'payment_state.dart';
@@ -40,7 +39,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   ) async* {
     switch (event.id) {
       case PaymentEventIds.LoadPaymentOptions:
-        InAppPurchaseConnection.enablePendingPurchases();
         yield PaymentIdealState(UnmodifiableListView(_paymentOptions));
         break;
       case PaymentEventIds.LoadPayment:
@@ -49,7 +47,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         yield PaymentLoadingState();
 
         yield await _paymentService
-            .getProductsAsync(paymentEvent.products.map((product) => product.id))
+            .getStoreProductsAsync(paymentEvent.products.map((product) => product.id))
             .then((products) => products.isEmpty
                 ? PaymentEmptyState()
                 : PaymentIdealState(_paymentOptions, products: products));
