@@ -13,6 +13,10 @@ class InAppPurchaseService extends PaymentService {
   Stream<UnmodifiableListView<Receipt>> get purchases => _connection.purchaseUpdatedStream
     .map((event) => _mapToPurchaseState(event));
 
+  InAppPurchaseService() {
+    InAppPurchaseConnection.enablePendingPurchases();
+  }
+
   @override
   Future<UnmodifiableListView<Receipt>> getProductsAsync(
       UnmodifiableListView<String> productIds) async {
@@ -24,6 +28,7 @@ class InAppPurchaseService extends PaymentService {
       if (productDetailResponse.error != null)
         throw Exception(productDetailResponse.error.message);
 
+      //TODO get current product status
       return UnmodifiableListView(productDetailResponse.productDetails.map((details) => 
         Receipt(details.id, Product(details.skProduct.productIdentifier, details.title, details.description,
               double.parse(details.price), details.skProduct.priceLocale.currencyCode), 

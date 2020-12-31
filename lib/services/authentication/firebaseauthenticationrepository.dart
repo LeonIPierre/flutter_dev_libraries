@@ -30,7 +30,7 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   FirebaseAuthenticationRepository({
     firebase.FirebaseAuth firebaseAuth,
     GoogleSignIn googleSignIn,
-  })  : _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
+  }) : _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
 
   /// Stream of [User] which will emit the current user when

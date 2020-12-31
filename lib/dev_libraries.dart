@@ -8,17 +8,13 @@ export 'blocs/configuration/configuration.dart';
 
 //logging
 export 'models/logging/logging.dart';
-export 'services/logging/appspectorservice.dart';
-
-//analytics
-export 'services/analytics/facebookappeventservice.dart';
-
 export 'blocs/authentication/authenticationbloc.dart';
-export 'services/authentication/authenticationrepository.dart';
-
 export 'blocs/login/login_cubit.dart';
+export 'blocs/ads/adbloc.dart';
+export 'blocs/payment/payment_bloc.dart';
 
-//ads
-//export 'models/ads/ads.dart';
-//export 'blocs/ads/ads.dart';
+//vendor services
+export 'services/analytics/facebookappeventservice.dart';
+export 'services/authentication/firebaseauthenticationrepository.dart';
+//export 'services/logging/appspectorservice.dart';
 //export 'services/ads/admobservice.dart';

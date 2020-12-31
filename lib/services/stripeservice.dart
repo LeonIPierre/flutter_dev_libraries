@@ -1,10 +1,9 @@
 import 'dart:collection';
 
-import 'package:dev_libraries/models/product.dart';
+import 'package:dev_libraries/models/products/product.dart';
 import 'package:stripe_payment/stripe_payment.dart';
 
 class StripeService {
-  //final String _key = "pk_test_51HXudfDFekk8UURAVXOvFA7FkeSomfkHnHJXi8H5ny2dsyhLiPWybH6CwJz8kDx3xQiDbNqQsitzWajs9xzfPTuD00QajZD4c7";
   final String _key;
   final String _merchantId;
   final String androidPayMode;
