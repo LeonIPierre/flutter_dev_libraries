@@ -28,7 +28,7 @@ class InAppPurchaseService extends PaymentService {
       if (productDetailResponse.error != null)
         throw Exception(productDetailResponse.error.message);
 
-      //TODO get current product status
+      //TODO get current product status from my server
       return UnmodifiableListView(productDetailResponse.productDetails.map((details) => 
         Receipt(details.id, Product(details.skProduct.productIdentifier, details.title, details.description,
               double.parse(details.price), details.skProduct.priceLocale.currencyCode), 

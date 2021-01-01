@@ -16,5 +16,6 @@ export 'blocs/payment/payment_bloc.dart';
 //vendor services
 export 'services/analytics/facebookappeventservice.dart';
 export 'services/authentication/firebaseauthenticationrepository.dart';
+export 'services/inapppurchaseservice.dart';
 //export 'services/logging/appspectorservice.dart';
 //export 'services/ads/admobservice.dart';
