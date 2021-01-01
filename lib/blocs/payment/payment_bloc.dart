@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:io' show Platform;
 
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/models/payment.dart';
 import 'package:dev_libraries/models/products/product.dart';
 import 'package:dev_libraries/models/products/receipt.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_device_type/flutter_device_type.dart';
 
 part 'payment_event.dart';
 part 'payment_state.dart';
@@ -27,7 +27,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       //2. deliver product
       //3. complete payment
       itemDeliveryHandler(event)
-            .then((value) async => await _paymentService.completeAllPayments(event))
+            .then((success) async { if(success) await _paymentService.completeAllPayments(event); })
             .catchError(() => add(PaymentResultEvent(PaymentEventIds.PaymentFailed, event)))
             .then((value) => add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, event)));
     });
@@ -82,9 +82,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   static List<PaymentOption> _loadPaymentOptions() {
     List<PaymentOption> paymentOptions = [];
 
-    if (Device.get().isIos)
+    if (Platform.isIOS)
       paymentOptions.add(PaymentOption.ApplePay);
-    else if (Device.get().isAndroid)
+    else if (Platform.isAndroid)
       paymentOptions.add(PaymentOption.GooglePay);
 
     paymentOptions.add(PaymentOption.PayPal);
