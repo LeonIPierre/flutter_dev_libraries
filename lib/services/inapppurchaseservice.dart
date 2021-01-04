@@ -63,7 +63,7 @@ class InAppPurchaseService extends PaymentService {
           });
         });
         break;
-      case PaymentOption.Stripe:
+      case PaymentOption.CreditCard:
       case PaymentOption.PayPal:
         throw Exception("InAppPurchases doesn't support $paymentOption");
         break;

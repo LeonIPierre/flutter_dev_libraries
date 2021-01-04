@@ -15,7 +15,7 @@ enum PaymentOption
 {
   GooglePay,
   ApplePay,
-  Stripe,
+  CreditCard,
   PayPal
 }
 

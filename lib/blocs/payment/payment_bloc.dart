@@ -88,7 +88,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       paymentOptions.add(PaymentOption.GooglePay);
 
     paymentOptions.add(PaymentOption.PayPal);
-    paymentOptions.add(PaymentOption.Stripe);
+    paymentOptions.add(PaymentOption.CreditCard);
 
     return paymentOptions;
   }
