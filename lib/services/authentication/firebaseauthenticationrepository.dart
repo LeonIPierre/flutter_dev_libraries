@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dev_libraries/models/authentication/authenticationservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
@@ -33,6 +34,10 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   }) : _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
 
+  initialize() async {
+    await Firebase.initializeApp();
+  }
+
   /// Stream of [User] which will emit the current user when
   /// the authentication state changes.
   ///
@@ -62,13 +67,9 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   Future<void> loginInWithProvider(AuthenticationProvider provider) async {
     switch (provider) {
       case AuthenticationProvider.Facebook:
-        // TODO: Handle this case.
-        break;
-      case AuthenticationProvider.Firebase:
-        // TODO: Handle this case.
-        break;
       case AuthenticationProvider.Twitter:
-        // TODO: Handle this case.
+      case AuthenticationProvider.Firebase:
+        //firebase.FacebookAuthProvider.credential();
         break;
       case AuthenticationProvider.Google:
         try {
