@@ -60,14 +60,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         await _paymentService.pay(paymentEvent.option, paymentEvent.products);
         break;
       case PaymentEventIds.CancelPayment:
-        // TODO: Handle this case.
+        yield PaymentErrorState(message: "Payment cancelled");
         break;
       case PaymentEventIds.PaymentSuccess:
         var paymentEvent = (event as PaymentResultEvent);
         yield PaymentIdealState(_paymentOptions, products: paymentEvent.receipts);
         break;
       case PaymentEventIds.PaymentFailed:
-        var paymentEvent = (event as PaymentResultEvent);
         yield PaymentErrorState(message: "");
         break;
     }

@@ -236,7 +236,6 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     return 0;
   }
 
-  //TODO change 6.0 to configuration variable
   AdDataPointEvent _mapUsageEventToRate(AdDataPointEvent prev, AdDataPointEvent current, [double optimal = 4.0, double min = -10.0, double max = 10.0]) {
     if(prev == null)
       return current;

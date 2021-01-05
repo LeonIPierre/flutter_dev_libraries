@@ -24,18 +24,16 @@ class LogOutFailure implements Exception {}
 /// Repository which manages user authentication.
 /// {@endtemplate}
 class FirebaseAuthenticationRepository extends AuthenticationService {
-  final firebase.FirebaseAuth _firebaseAuth;
-  final GoogleSignIn _googleSignIn;
+  firebase.FirebaseAuth _firebaseAuth;
+  GoogleSignIn _googleSignIn;
 
-  /// {@macro authentication_repository}
-  FirebaseAuthenticationRepository({
+  initialize({
     firebase.FirebaseAuth firebaseAuth,
     GoogleSignIn googleSignIn,
-  }) : _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
-
-  initialize() async {
+  }) async {
     await Firebase.initializeApp();
+    _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance;
+    _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
   }
 
   /// Stream of [User] which will emit the current user when
