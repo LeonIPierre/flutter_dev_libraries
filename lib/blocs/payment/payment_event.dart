@@ -12,6 +12,7 @@ enum PaymentEventIds {
 
 class PaymentEvent extends Equatable {
   final PaymentEventIds id;
+  
 
   const PaymentEvent(this.id);
 
@@ -22,16 +23,24 @@ class PaymentEvent extends Equatable {
 class PayWithEvent extends PaymentEvent {
   final PaymentOption option;
   final UnmodifiableListView<Product> products;
-  const PayWithEvent(PaymentEventIds id, this.option, this.products) : super(id);
+  const PayWithEvent(PaymentEventIds id, this.option, this.products)
+    : super(id);
 
   @override
   List<Object> get props => [id, option, products];
 }
 
 class PaymentResultEvent extends PaymentEvent {
-  final UnmodifiableListView<Receipt> receipts;
-  const PaymentResultEvent(PaymentEventIds id, this.receipts) : super(id);
+  final PaymentResult paymentResult;
+
+  const PaymentResultEvent(PaymentEventIds id, this.paymentResult)
+    : super(id);
+
+  factory PaymentResultEvent.create(PaymentEventIds id, PaymentOption option, 
+    PaymentResult paymentResult) {
+    return PaymentResultEvent(id, paymentResult);
+  }
 
   @override
-  List<Object> get props => [id, receipts];
+  List<Object> get props => [id, paymentResult];
 }

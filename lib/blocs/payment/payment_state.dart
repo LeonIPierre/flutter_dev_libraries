@@ -7,7 +7,7 @@ abstract class PaymentState extends Equatable {
 
 class PaymentIdealState extends PaymentState {
   final UnmodifiableListView<PaymentOption> paymentOptions;
-  final UnmodifiableListView<Receipt> products;
+  final UnmodifiableListView<PaymentResult> products;
    
   PaymentIdealState(this.paymentOptions, { this.products });
   

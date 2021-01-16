@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:dev_libraries/models/products/product.dart';
-import 'package:dev_libraries/models/products/receipt.dart';
 
 enum PaymentStatus {
   None,
@@ -20,13 +19,29 @@ enum PaymentOption
 }
 
 abstract class PaymentService {
-  Stream<UnmodifiableListView<Receipt>> get purchases;
+  Stream<UnmodifiableListView<PaymentResult>> get purchases;
 
   Future<void> pay(PaymentOption paymentOption, UnmodifiableListView<Product> products);
 
-  Future<void> completePayment(Receipt product);
+  Future<PaymentResult> completePayment(PaymentResult payment);
 
-  Future<void> completeAllPayments(UnmodifiableListView<Receipt> products);
+  Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> payments);
 
-  Future<UnmodifiableListView<Receipt>> getStoreProductsAsync(UnmodifiableListView<String> productIds);
+  Future<UnmodifiableListView<Product>> getStoreProductsAsync(UnmodifiableListView<String> productIds);
+}
+
+class PaymentResult {
+  final PaymentStatus status;
+  final PaymentOption option;
+  final Product product;
+  final Object billingData;
+
+  PaymentResult(this.status, { this.option, this.product, this.billingData });
+
+  PaymentResult clone({PaymentStatus status, PaymentOption option,
+    Product product, Object billingData})
+    => PaymentResult(status ?? this.status, 
+      option: option ?? this.option,
+      product: product ?? this.product,
+      billingData: billingData ?? this.billingData);
 }
