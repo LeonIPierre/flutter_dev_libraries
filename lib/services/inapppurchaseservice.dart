@@ -3,14 +3,13 @@ import 'dart:collection';
 
 import 'package:dev_libraries/models/payment.dart';
 import 'package:dev_libraries/models/products/product.dart';
-import 'package:dev_libraries/models/products/receipt.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 class InAppPurchaseService extends PaymentService {
   final InAppPurchaseConnection _connection = InAppPurchaseConnection.instance;
 
   @override
-  Stream<UnmodifiableListView<Receipt>> get purchases => _connection.purchaseUpdatedStream
+  Stream<UnmodifiableListView<PaymentResult>> get purchases => _connection.purchaseUpdatedStream
     .map((event) => _mapToPurchaseState(event));
 
   InAppPurchaseService() {
@@ -18,7 +17,7 @@ class InAppPurchaseService extends PaymentService {
   }
 
   @override
-  Future<UnmodifiableListView<Receipt>> getStoreProductsAsync(
+  Future<UnmodifiableListView<Product>> getStoreProductsAsync(
       UnmodifiableListView<String> productIds) async {
     return await _connection.isAvailable().then((success) {
       if (!success) throw Exception("Failed to connect to store");
@@ -30,9 +29,8 @@ class InAppPurchaseService extends PaymentService {
 
       //TODO get current product status from my server
       return UnmodifiableListView(productDetailResponse.productDetails.map((details) => 
-        Receipt(details.id, Product(details.skProduct.productIdentifier, details.title, details.description,
-              double.parse(details.price), details.skProduct.priceLocale.currencyCode), 
-              PaymentStatus.None)));
+        Product(details.skProduct.productIdentifier, details.title, details.description,
+              double.parse(details.price), currencyCode: details.skProduct.priceLocale.currencyCode)));
     });
   }
 
@@ -70,36 +68,47 @@ class InAppPurchaseService extends PaymentService {
     }
   }
 
-  PaymentStatus _mapPaymentStatus(PurchaseStatus status) {
+  PaymentResult _mapPaymentStatus(PurchaseStatus status) {
     switch (status) {
         case PurchaseStatus.pending:
-          return PaymentStatus.Started;
+          return PaymentResult(PaymentStatus.Started);
         case PurchaseStatus.purchased:
-         return PaymentStatus.Completed;
+         return PaymentResult(PaymentStatus.Completed);
         case PurchaseStatus.error:
-           return PaymentStatus.Cancelled;
+           return PaymentResult(PaymentStatus.Cancelled);
         default:
           return null;
       }
   }
 
-  UnmodifiableListView<Receipt> _mapToPurchaseState(List<PurchaseDetails> purchases) {
+  UnmodifiableListView<PaymentResult> _mapToPurchaseState(List<PurchaseDetails> purchases) {
     //TODO get product based on purchase.productID
-    return UnmodifiableListView(purchases.map((purchase) => 
-      Receipt(purchase.purchaseID, null, _mapPaymentStatus(purchase.status), data: purchases)));
+    //Receipt(purchase.purchaseID, null, , data: purchases))
+    // purchases.map((purchase) => _mapPaymentStatus(purchase.status)
+    //   .clone(
+    //       product: Product(purchase.productID, 
+    //       purchase.billingClientPurchase., description, 
+    //       purchase.)));
+    // return UnmodifiableListView(purchases.map((purchase) => 
+    //   _mapPaymentStatus(purchase.status).clone()
+    // ));
   }
 
   @override
-  Future<void> completePayment(Receipt product) async {
+  Future<PaymentResult> completePayment(PaymentResult payment) async {
     //TODO change to figure out if the product is a consumable or not
-    var data = product.data as PurchaseDetails;
+    var data = payment.billingData as PurchaseDetails;
 
     if(data.pendingCompletePurchase)
-        _connection.completePurchase(data);
+        _connection.completePurchase(data).then((value) => value);
+
+    return payment;
   }
 
   @override
-  Future<void> completeAllPayments(UnmodifiableListView<Receipt> products) {
-    products.map((product) => completePayment(product));
+  Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> products) {
+    //products.map((product) => completePayment(product));
+    Future.wait(products.map((product) => completePayment(product)));
+    return null;
   }
 }

@@ -2,15 +2,14 @@ import 'dart:collection';
 
 import 'package:dev_libraries/models/payment.dart';
 import 'package:dev_libraries/models/products/product.dart';
-import 'package:dev_libraries/models/products/receipt.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stripe_payment/stripe_payment.dart';
 
 class StripeService extends PaymentService {
-  final ReplaySubject<UnmodifiableListView<Receipt>> _purchasesSubject = ReplaySubject<UnmodifiableListView<Receipt>>();
+  final ReplaySubject<UnmodifiableListView<PaymentResult>> _purchasesSubject = ReplaySubject<UnmodifiableListView<PaymentResult>>();
 
   @override
-  Stream<UnmodifiableListView<Receipt>> get purchases => _purchasesSubject.stream;
+  Stream<UnmodifiableListView<PaymentResult>> get purchases => _purchasesSubject.stream;
 
   StripeService(String key, String merchantId, { String androidPayMode = "test" }) {
     StripePayment.setOptions(StripeOptions(
@@ -55,14 +54,16 @@ class StripeService extends PaymentService {
   } 
 
   @override
-  Future<void> completeAllPayments(UnmodifiableListView<Receipt> products) async =>
-    await StripePayment.completeNativePayRequest();
+  Future<UnmodifiableListView<PaymentResult>> 
+  completeAllPayments(UnmodifiableListView<PaymentResult> products) async =>
+    await StripePayment.completeNativePayRequest().then((_) => _purchasesSubject.values.last);
   
   @override
-  Future<void> completePayment(Receipt product) async => await StripePayment.completeNativePayRequest();
+  Future<PaymentResult> completePayment(PaymentResult product) async =>
+     await StripePayment.completeNativePayRequest().then((_) => null);
   
   @override
-  Future<UnmodifiableListView<Receipt>> getStoreProductsAsync(UnmodifiableListView<String> productIds) {
+  Future<UnmodifiableListView<Product>> getStoreProductsAsync(UnmodifiableListView<String> productIds) {
       // TODO: implement getStoreProductsAsync
       throw UnimplementedError();
   }
