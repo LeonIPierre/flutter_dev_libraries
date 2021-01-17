@@ -32,7 +32,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       await _paymentService.completeAllPayments(event)
         .then((payments) => verifyPurchaseHandler(payments))
         //.catchError(() => add(PaymentResultEvent(PaymentEventIds.PaymentFailed, event)))
-        //.then((value) => add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, null, event)));
+        //.then((value) => add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, event)));
         .then((value) => itemDeliveryHandler(value));
     });
   }

@@ -10,7 +10,7 @@ class InAppPurchaseService extends PaymentService {
 
   @override
   Stream<UnmodifiableListView<PaymentResult>> get purchases => _connection.purchaseUpdatedStream
-    .map((event) => _mapToPurchaseState(event));
+    .asyncMap((event) => _mapToPurchaseState(event));
 
   InAppPurchaseService() {
     InAppPurchaseConnection.enablePendingPurchases();
@@ -27,10 +27,17 @@ class InAppPurchaseService extends PaymentService {
       if (productDetailResponse.error != null)
         throw Exception(productDetailResponse.error.message);
 
-      //TODO get current product status from my server
-      return UnmodifiableListView(productDetailResponse.productDetails.map((details) => 
-        Product(details.skProduct.productIdentifier, details.title, details.description,
-              double.parse(details.price), currencyCode: details.skProduct.priceLocale.currencyCode)));
+      return UnmodifiableListView(productDetailResponse.productDetails.map((details) {
+        if(details.skProduct != null)
+          return Product(details.id, details.title, details.description,
+              double.parse(details.skProduct.price), currencyCode: details.skProduct.priceLocale.currencyCode);
+        else if(details.skuDetail != null)
+          return Product(details.id, details.title, details.description,
+              double.parse(details.skuDetail.originalPrice));
+
+        return null;
+      }
+      ));
     });
   }
 
@@ -81,17 +88,15 @@ class InAppPurchaseService extends PaymentService {
       }
   }
 
-  UnmodifiableListView<PaymentResult> _mapToPurchaseState(List<PurchaseDetails> purchases) {
-    //TODO get product based on purchase.productID
-    //Receipt(purchase.purchaseID, null, , data: purchases))
-    // purchases.map((purchase) => _mapPaymentStatus(purchase.status)
-    //   .clone(
-    //       product: Product(purchase.productID, 
-    //       purchase.billingClientPurchase., description, 
-    //       purchase.)));
-    // return UnmodifiableListView(purchases.map((purchase) => 
-    //   _mapPaymentStatus(purchase.status).clone()
-    // ));
+  Future<UnmodifiableListView<PaymentResult>> _mapToPurchaseState(List<PurchaseDetails> purchases) async {
+    return await getStoreProductsAsync(purchases.map((p) => p.productID))
+      .then((products) {
+        return UnmodifiableListView(products.map((product) {
+          var purchase = purchases.firstWhere((p) => p.productID == product.id);
+          return _mapPaymentStatus(purchase.status)
+          .clone(product: product, billingData: purchase);
+        }));
+      });
   }
 
   @override
@@ -107,7 +112,6 @@ class InAppPurchaseService extends PaymentService {
 
   @override
   Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> products) {
-    //products.map((product) => completePayment(product));
     Future.wait(products.map((product) => completePayment(product)));
     return null;
   }
