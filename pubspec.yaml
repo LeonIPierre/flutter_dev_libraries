@@ -1,8 +1,9 @@
 name: dev_libraries
 description: A set of common patterns to be used across all Flutter projects
-version: 0.0.1
+publish_to: 'none'
+version: 1.0.0
 author: Leon Pierre
-homepage: 
+homepage: https://www.google.com
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -16,13 +17,14 @@ dependencies:
   flutter_bloc: ^6.1.0
 
   #services
-  #appspector: '0.4.0'
   firebase_core: ^0.5.3
   firebase_auth: ^0.18.4+1
   google_sign_in: ^4.5.1
-  admob_flutter: ^1.0.0-beta.5
-  google_maps_webservice: ^0.0.18
-  #firebase_admob: '0.5.5'
+  admob_flutter: ^1.0.1
+  google_maps_webservice: ^0.0.19
+  stripe_payment: ^1.0.6
+  in_app_purchase: ^0.3.4+16
+  #appspector: '0.4.0'
   #usage: ^3.4.1 //google analytics
 
   #libraries
@@ -31,8 +33,6 @@ dependencies:
   equatable: ^1.2.5
   flat: ^0.2.0
   shared_preferences: ^0.5.12+4
-  stripe_payment: ^1.0.6
-  in_app_purchase: ^0.3.4+16
 
 dev_dependencies:
   flutter_test:

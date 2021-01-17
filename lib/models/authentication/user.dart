@@ -18,7 +18,7 @@ class User extends Equatable {
     @required this.email,
     @required this.id,
     @required this.name,
-    @required this.type,
+    this.type = UserType.Anonymous,
     this.accesToken
   })  : assert(email != null),
         assert(id != null);
