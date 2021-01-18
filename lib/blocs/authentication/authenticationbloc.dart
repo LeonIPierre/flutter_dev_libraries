@@ -41,7 +41,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       yield await _userService.createUserAsync()
         .then((user) => _authenticationService
           .loginWithToken(user.accesToken)
-          .then((value) => user))
+          .then((_) => user))
         .then((user) => AuthenticationState.anonymous(user));
     }
     else if (event is AuthenticationLogoutRequested) {
@@ -57,9 +57,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   AuthenticationState _mapAuthenticationUserChangedToState(
     AuthenticationUserChanged event,
-  ) {
-    return event.user != User.empty
+  ) => event.user != User.empty
         ? AuthenticationState.authenticated(event.user)
         : const AuthenticationState.unauthenticated();
-  }
 }

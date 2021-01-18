@@ -31,9 +31,11 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
     firebase.FirebaseAuth firebaseAuth,
     GoogleSignIn googleSignIn,
   }) async {
-    await Firebase.initializeApp();
-    _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance;
-    _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
+    await Firebase.initializeApp()
+      .then((app) {
+        _firebaseAuth = firebaseAuth ?? firebase.FirebaseAuth.instance;
+        _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
+      });
   }
 
   /// Stream of [User] which will emit the current user when
@@ -131,9 +133,12 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
       throw LogOutFailure();
     }
   }
+
+  static getUser(String id) {
+    return UserType.Anonymous;
+  }
 }
 
 extension on firebase.User {
-  User get toUser => User(id: uid, email: email, name: displayName, 
-    type: UserType.Anonymous);
+  User get toUser => User(id: uid, email: email, name: displayName);
 }
