@@ -2,6 +2,8 @@ import 'dart:collection';
 
 import 'package:dev_libraries/models/products/product.dart';
 
+import 'creditcard.dart';
+
 enum PaymentStatus {
   None,
   Started,
@@ -22,6 +24,8 @@ abstract class PaymentService {
   Stream<UnmodifiableListView<PaymentResult>> get purchases;
 
   Future<void> pay(PaymentOption paymentOption, UnmodifiableListView<Product> products);
+
+  Future<void> payWithCreditCard(CreditCard creditCard, UnmodifiableListView<Product> products);
 
   Future<PaymentResult> completePayment(PaymentResult payment);
 

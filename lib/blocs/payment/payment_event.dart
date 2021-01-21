@@ -1,7 +1,6 @@
 part of 'payment_bloc.dart';
 
 enum PaymentEventIds {
-  LoadPaymentOptions,
   LoadPayment,
   StartPayment,
   CancelPayment,
@@ -20,6 +19,13 @@ class PaymentEvent extends Equatable {
   List<Object> get props => [id];
 }
 
+class PaymentLoadEvent extends PaymentEvent {
+  final UnmodifiableListView<Product> products;
+  final List<PaymentOption> paymentOptions;
+
+  PaymentLoadEvent(this.products, { this.paymentOptions }) : super(PaymentEventIds.LoadPayment);
+}
+
 class PayWithEvent extends PaymentEvent {
   final PaymentOption option;
   final UnmodifiableListView<Product> products;
@@ -31,16 +37,11 @@ class PayWithEvent extends PaymentEvent {
 }
 
 class PaymentResultEvent extends PaymentEvent {
-  final PaymentResult paymentResult;
+  final UnmodifiableListView<PaymentResult> paymentResults;
 
-  const PaymentResultEvent(PaymentEventIds id, this.paymentResult)
+  const PaymentResultEvent(PaymentEventIds id, this.paymentResults)
     : super(id);
 
-  factory PaymentResultEvent.create(PaymentEventIds id, PaymentOption option, 
-    PaymentResult paymentResult) {
-    return PaymentResultEvent(id, paymentResult);
-  }
-
   @override
-  List<Object> get props => [id, paymentResult];
+  List<Object> get props => [id, paymentResults];
 }

@@ -20,20 +20,18 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   StreamSubscription _paymentSubscription;
 
   PaymentBloc(this._paymentService, ItemDelivery itemDeliveryHandler, 
-  VerifyPurchase verifyPurchaseHandler,
-  {List<PaymentOption> paymentOptions})
-      : _paymentOptions = paymentOptions ?? _loadPaymentOptions(),
-        super(PaymentEmptyState()) {
+  VerifyPurchase verifyPurchaseHandler)
+      : super(PaymentEmptyState()) {
     _paymentSubscription = _paymentService.purchases.listen((event) async {
       //payments are handled in this order
       // complete payment
-      // verify payment
+      // verify payment in the current application
       // deliver item
       await _paymentService.completeAllPayments(event)
         .then((payments) => verifyPurchaseHandler(payments))
-        //.catchError(() => add(PaymentResultEvent(PaymentEventIds.PaymentFailed, event)))
-        //.then((value) => add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, event)));
-        .then((value) => itemDeliveryHandler(value));
+        .then((value) => itemDeliveryHandler(value))
+        .then((value) => add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, event)))
+        .catchError(() => add(PaymentResultEvent(PaymentEventIds.PaymentFailed, event)));
     });
   }
 
@@ -42,13 +40,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     PaymentEvent event,
   ) async* {
     switch (event.id) {
-      case PaymentEventIds.LoadPaymentOptions:
-        yield PaymentIdealState(UnmodifiableListView(_paymentOptions));
-        break;
       case PaymentEventIds.LoadPayment:
-        var paymentEvent = event as PayWithEvent;
+        var paymentEvent = event as PaymentLoadEvent;
 
         yield PaymentLoadingState();
+
+        _paymentOptions = paymentEvent.paymentOptions ?? _loadPaymentOptions();
 
         yield await _paymentService
             .getStoreProductsAsync(paymentEvent.products.map((product) => product.id))
@@ -59,7 +56,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                     UnmodifiableListView(products.map((p) => PaymentResult(PaymentStatus.None, product: p)))));
         break;
       case PaymentEventIds.StartPayment:
-        var paymentEvent = (event as PayWithEvent);
+        var paymentEvent = event as PayWithEvent;
 
         yield PaymentLoadingState();
 
@@ -71,8 +68,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       case PaymentEventIds.PaymentSuccess:
         var paymentEvent = (event as PaymentResultEvent);
         
-        yield PaymentIdealState(_paymentOptions, 
-          products: UnmodifiableListView([paymentEvent.paymentResult]));
+        yield PaymentIdealState(_paymentOptions, products: paymentEvent.paymentResults);
         break;
       case PaymentEventIds.PaymentFailed:
         yield PaymentErrorState(message: "");

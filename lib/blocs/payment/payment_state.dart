@@ -15,6 +15,15 @@ class PaymentIdealState extends PaymentState {
   List<Object> get props => [paymentOptions, products];
 }
 
+class PaymentCompletedState extends PaymentState {
+  final UnmodifiableListView<PaymentResult> results;
+
+  PaymentCompletedState(this.results);
+
+  @override
+  List<Object> get props => [results];
+}
+
 class PaymentEmptyState extends PaymentState {}
 
 class PaymentErrorState extends PaymentState {
