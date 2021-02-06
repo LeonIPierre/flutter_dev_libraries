@@ -31,7 +31,7 @@ abstract class PaymentService {
 
   Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> payments);
 
-  Future<UnmodifiableListView<Product>> getStoreProductsAsync(UnmodifiableListView<String> productIds);
+  Future<UnmodifiableListView<Product>> getStoreProductsAsync(UnmodifiableListView<Product> products);
 }
 
 class PaymentResult {

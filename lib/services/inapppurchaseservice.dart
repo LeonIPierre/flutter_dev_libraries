@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:dev_libraries/models/creditcard.dart';
 import 'package:dev_libraries/models/payment.dart';
 import 'package:dev_libraries/models/products/product.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -18,11 +19,11 @@ class InAppPurchaseService extends PaymentService {
 
   @override
   Future<UnmodifiableListView<Product>> getStoreProductsAsync(
-      UnmodifiableListView<String> productIds) async {
+      UnmodifiableListView<Product> products) async {
     return await _connection.isAvailable().then((success) {
       if (!success) throw Exception("Failed to connect to store");
 
-      return _connection.queryProductDetails(productIds.toSet());
+      return _connection.queryProductDetails(products.map((product) => product.id).toSet());
     }).then((productDetailResponse) {
       if (productDetailResponse.error != null)
         throw Exception(productDetailResponse.error.message);
@@ -75,6 +76,12 @@ class InAppPurchaseService extends PaymentService {
     }
   }
 
+  @override
+  Future<void> payWithCreditCard(CreditCard creditCard, UnmodifiableListView<Product> products) {
+    // TODO: implement payWithCreditCard
+    throw UnimplementedError();
+  }
+
   PaymentResult _mapPaymentStatus(PurchaseStatus status) {
     switch (status) {
         case PurchaseStatus.pending:
@@ -89,7 +96,7 @@ class InAppPurchaseService extends PaymentService {
   }
 
   Future<UnmodifiableListView<PaymentResult>> _mapToPurchaseState(List<PurchaseDetails> purchases) async {
-    return await getStoreProductsAsync(purchases.map((p) => p.productID))
+    return await getStoreProductsAsync(purchases.map((p) => Product(p.productID, null, null, null)))
       .then((products) {
         return UnmodifiableListView(products.map((product) {
           var purchase = purchases.firstWhere((p) => p.productID == product.id);

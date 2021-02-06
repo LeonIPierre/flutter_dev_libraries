@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:dev_libraries/models/payment.dart';
 import 'package:dev_libraries/models/products/product.dart';
+import 'package:dev_libraries/models/creditcard.dart' as cc;
 import 'package:rxdart/rxdart.dart';
 import 'package:stripe_payment/stripe_payment.dart';
 
@@ -42,31 +43,42 @@ class StripeService extends PaymentService {
             currencyCode: currencyCode,
             items: products.map((product) => ApplePayItem(label: product.name, amount: product.price.toString()))
           )
-        );
+        ).then((token) {
+          _purchasesSubject.add(UnmodifiableListView(
+            products.map((product) => PaymentResult(PaymentStatus.Started, 
+              product: product,
+              option: paymentOption, billingData: token))
+            ));
+        });
         break;
       case PaymentOption.CreditCard:
-        //await StripePayment.createTokenWithCard(CreditCard());
+        await StripePayment.createTokenWithCard(CreditCard());
         break;
       case PaymentOption.PayPal:
-        throw Exception("$paymentOption not supporte by StripeService");
+        throw Exception("$paymentOption not supported by StripeService");
         break;
     }
   } 
 
   @override
+  Future<void> payWithCreditCard(cc.CreditCard creditCard, UnmodifiableListView<Product> products) async =>
+    await StripePayment.createTokenWithCard(CreditCard(number: creditCard.number, cvc: creditCard.ccv))
+      .then((value) => null);
+  
+  @override
   Future<UnmodifiableListView<PaymentResult>> 
   completeAllPayments(UnmodifiableListView<PaymentResult> products) async =>
-    await StripePayment.completeNativePayRequest().then((_) => _purchasesSubject.values.last);
+    await StripePayment.completeNativePayRequest().then((_) 
+      => UnmodifiableListView(products.map((purchase) 
+        => purchase.clone(status: PaymentStatus.Completed))));
   
   @override
   Future<PaymentResult> completePayment(PaymentResult product) async =>
      await StripePayment.completeNativePayRequest().then((_) => null);
   
   @override
-  Future<UnmodifiableListView<Product>> getStoreProductsAsync(UnmodifiableListView<String> productIds) {
-      // TODO: implement getStoreProductsAsync
-      throw UnimplementedError();
-  }
+  Future<UnmodifiableListView<Product>> getStoreProductsAsync(UnmodifiableListView<Product> products) =>
+    Future.value(products);
 
   close() {
     _purchasesSubject.close();

@@ -1,34 +1,41 @@
 part of 'payment_bloc.dart';
 
 abstract class PaymentState extends Equatable {
+  final UnmodifiableListView<PaymentResult> products;
+
+  PaymentState(this.products);
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [products];
 }
 
 class PaymentIdealState extends PaymentState {
   final UnmodifiableListView<PaymentOption> paymentOptions;
-  final UnmodifiableListView<PaymentResult> products;
-   
-  PaymentIdealState(this.paymentOptions, { this.products });
-  
+
+  PaymentIdealState(this.paymentOptions,
+      {UnmodifiableListView<PaymentResult> products})
+      : super(products);
+
   @override
   List<Object> get props => [paymentOptions, products];
 }
 
 class PaymentCompletedState extends PaymentState {
-  final UnmodifiableListView<PaymentResult> results;
-
-  PaymentCompletedState(this.results);
-
-  @override
-  List<Object> get props => [results];
+  PaymentCompletedState(UnmodifiableListView<PaymentResult> results)
+      : super(results);
 }
 
-class PaymentEmptyState extends PaymentState {}
+class PaymentEmptyState extends PaymentState {
+  PaymentEmptyState({UnmodifiableListView<PaymentResult> products})
+      : super(products);
+}
 
 class PaymentErrorState extends PaymentState {
   final String message;
-  PaymentErrorState({this.message});
+
+  PaymentErrorState({this.message,
+      UnmodifiableListView<PaymentResult> products})
+      : super(products);
 
   @override
   List<Object> get props => [message];
@@ -36,7 +43,10 @@ class PaymentErrorState extends PaymentState {
 
 class PaymentLoadingState extends PaymentState {
   final int progress;
-  PaymentLoadingState({this.progress});
+
+  PaymentLoadingState({this.progress,
+      UnmodifiableListView<PaymentResult> products})
+      : super(products);
 
   @override
   List<Object> get props => [progress];
