@@ -23,6 +23,7 @@ dependencies:
   admob_flutter: ^1.0.1
   google_maps_webservice: ^0.0.19
   stripe_payment: ^1.0.6
+  
   in_app_purchase: ^0.3.4+16
   #appspector: '0.4.0'
   #usage: ^3.4.1 //google analytics

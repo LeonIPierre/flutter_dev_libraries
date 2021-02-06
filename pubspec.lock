@@ -14,7 +14,7 @@ packages:
       name: admob_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-beta.5"
+    version: "1.0.1"
   analyzer:
     dependency: transitive
     description:
@@ -225,7 +225,7 @@ packages:
       name: google_maps_webservice
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.18"
+    version: "0.0.19"
   google_sign_in:
     dependency: "direct main"
     description:
@@ -694,5 +694,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.12.0-0.0 <=2.12.0-29.10.beta"
+  dart: ">=2.12.0-0.0 <=2.12.0-133.2.beta"
   flutter: ">=1.16.0 <2.0.0"
