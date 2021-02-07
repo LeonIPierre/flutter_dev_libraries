@@ -50,7 +50,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       case PaymentEventIds.CompletePayment:
         var paymentEvent = event as PaymentCompletedEvent;
         await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults)
-            .then((value) => paymentEvent.verifyPurchaseHandler(paymentEvent.paymentResults))
+            .then((value) => paymentEvent.verifyPurchaseHandler(value))
             .then((value) => paymentEvent.itemDeliveryHandler(value))
             .then((value) => add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, 
             UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Completed)))
