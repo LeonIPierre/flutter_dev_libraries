@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:dev_libraries/contracts/authentication/authenticationservice.dart';
 import 'package:dev_libraries/services/userservice.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
-import 'package:dev_libraries/models/authentication/authenticationservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
 import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
