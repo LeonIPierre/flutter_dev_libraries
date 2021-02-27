@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:dev_libraries/models/authentication/authenticationservice.dart';
+import 'package:dev_libraries/contracts/authentication/authenticationservice.dart';
 import 'package:dev_libraries/models/forminput.dart';
 import 'package:equatable/equatable.dart';
 
