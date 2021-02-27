@@ -1,8 +1,5 @@
-import 'dart:collection';
-
 import 'package:dev_libraries/models/products/product.dart';
-
-import 'creditcard.dart';
+import 'package:equatable/equatable.dart';
 
 enum PaymentStatus {
   None,
@@ -20,21 +17,7 @@ enum PaymentOption
   PayPal
 }
 
-abstract class PaymentService {
-  Stream<UnmodifiableListView<PaymentResult>> get purchases;
-
-  Future<void> pay(PaymentOption paymentOption, UnmodifiableListView<Product> products);
-
-  Future<void> payWithCreditCard(CreditCard creditCard, UnmodifiableListView<Product> products);
-
-  Future<PaymentResult> completePayment(PaymentResult payment);
-
-  Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> payments);
-
-  Future<UnmodifiableListView<Product>> getStoreProductsAsync(UnmodifiableListView<Product> products);
-}
-
-class PaymentResult {
+class PaymentResult extends Equatable {
   final PaymentStatus status;
   final PaymentOption option;
   final Product product;
@@ -48,4 +31,10 @@ class PaymentResult {
       option: option ?? this.option,
       product: product ?? this.product,
       billingData: billingData ?? this.billingData);
+
+  @override
+  List<Object> get props => [status, option, product, billingData];
+
+  @override
+  String toString() => 'PaymentResult { status: $status, option:$option, product:$product, billingData: $billingData }';
 }
