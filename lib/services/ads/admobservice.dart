@@ -3,9 +3,9 @@ import 'dart:math';
 
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:dev_libraries/blocs/ads/adbloc.dart';
+import 'package:dev_libraries/contracts/ads/adservice.dart';
 import 'package:dev_libraries/models/ads/ad.dart';
 import 'package:dev_libraries/models/ads/adconfiguration.dart';
-import 'package:dev_libraries/models/ads/adservice.dart';
 import 'package:dev_libraries/models/ads/adsize.dart';
 
 class AdMobService extends AdService {
