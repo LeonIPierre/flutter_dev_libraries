@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:io' show Platform;
 
 import 'package:bloc/bloc.dart';
+import 'package:dev_libraries/contracts/ecommerce/paymentservice.dart';
 import 'package:dev_libraries/models/payment.dart';
 import 'package:dev_libraries/models/products/product.dart';
 import 'package:equatable/equatable.dart';
@@ -38,30 +39,28 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 ? PaymentEmptyState()
                 : PaymentIdealState(UnmodifiableListView(_paymentOptions),
                     products: UnmodifiableListView(products.map((p) =>
-                        PaymentResult(PaymentStatus.None, product: p)))));
+                        PaymentResult(PaymentStatus.None, product: p)).toList())));
         break;
       case PaymentEventIds.InitatePayment:
         var paymentEvent = event as PaymentStartedEvent;
-        await paymentEvent.paymentService.pay(paymentEvent.option, paymentEvent.products)
+        yield await paymentEvent.paymentService.pay(paymentEvent.option, paymentEvent.products)
           .then((_) => PaymentIdealState(UnmodifiableListView(_paymentOptions),
                     products: UnmodifiableListView(paymentEvent.products.map((p) =>
-                        PaymentResult(PaymentStatus.Started, product: p)))));
+                        PaymentResult(PaymentStatus.Started, product: p)).toList())));
         break;
       case PaymentEventIds.CompletePayment:
         var paymentEvent = event as PaymentCompletedEvent;
-        await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults)
+        yield await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults)
             .then((value) => paymentEvent.verifyPurchaseHandler(value))
             .then((value) => paymentEvent.itemDeliveryHandler(value))
-            .then((value) => add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, 
-            UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Completed)))
-            )))
-            .catchError(() => add(PaymentResultEvent(PaymentEventIds.PaymentFailed, 
-            UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Error))))));
+            .then((value) => PaymentCompletedState(UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Completed)).toList())))
+            .catchError(() => PaymentErrorState(message: "Payment cancelled", 
+              products: UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Error)).toList())));
         break;
       case PaymentEventIds.PaymentSuccess:
         var paymentEvent = event as PaymentResultEvent;
 
-        yield PaymentIdealState(_paymentOptions, products: paymentEvent.paymentResults);
+        yield PaymentCompletedState(paymentEvent.paymentResults);
         break;
       case PaymentEventIds.CancelPayment:
         yield PaymentErrorState(message: "Payment cancelled");
@@ -87,7 +86,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           } else if(event.every((element) => element.status == PaymentStatus.Started)) {
             add(PaymentCompletedEvent(paymentEvent.paymentService, 
               paymentEvent.option, paymentEvent.itemDeliveryHandler, 
-              paymentEvent.verifyPurchaseHandler, paymentEvent.products, event));
+              paymentEvent.verifyPurchaseHandler, event));
           } else if(event.every((element) => element.status == PaymentStatus.Completed)) {
             add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, event));
           }

@@ -6,8 +6,6 @@ enum PaymentEventIds {
   
   InitatePayment,
   CompletePayment,
-  //VerifyPurchase,
-  //DeliverPurchase,
 
   CancelPayment,
   PaymentSuccess,
@@ -55,8 +53,9 @@ class PaymentCompletedEvent extends PaymentStartedEvent {
 
   PaymentCompletedEvent(PaymentService paymentService, 
     PaymentOption option, ItemDelivery itemDeliveryHandler, 
-    VerifyPurchase verifyPurchaseHandler, UnmodifiableListView<Product> products, this.paymentResults) 
-    : super(PaymentEventIds.CompletePayment, paymentService, option, itemDeliveryHandler, verifyPurchaseHandler, products);
+    VerifyPurchase verifyPurchaseHandler, this.paymentResults) 
+    : super(PaymentEventIds.CompletePayment, paymentService, option, 
+      itemDeliveryHandler, verifyPurchaseHandler, UnmodifiableListView(paymentResults.map((p) => p.product).toList()));
 
   @override
   List<Object> get props => [option, products, paymentResults];

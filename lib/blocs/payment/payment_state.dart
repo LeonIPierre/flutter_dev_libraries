@@ -23,6 +23,9 @@ class PaymentIdealState extends PaymentState {
 class PaymentCompletedState extends PaymentState {
   PaymentCompletedState(UnmodifiableListView<PaymentResult> results)
       : super(results);
+
+  @override
+  List<Object> get props => [products.every((element) => element.status == PaymentStatus.Completed)];
 }
 
 class PaymentEmptyState extends PaymentState {
@@ -38,7 +41,7 @@ class PaymentErrorState extends PaymentState {
       : super(products);
 
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [products, message];
 }
 
 class PaymentLoadingState extends PaymentState {
@@ -49,5 +52,5 @@ class PaymentLoadingState extends PaymentState {
       : super(products);
 
   @override
-  List<Object> get props => [progress];
+  List<Object> get props => [products, progress];
 }
