@@ -11,4 +11,15 @@ class Product  extends Equatable {
 
   @override
   List<Object> get props => [id, name, description, price];
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'description': description,
+    'price': price,
+    'currencyCode': currencyCode
+  };
+
+  @override
+  String toString() => 'Product { id: $id, name:$name, price:$price $currencyCode, description: $description }';
 }
