@@ -1,15 +1,16 @@
 part of 'payment_bloc.dart';
 
 enum PaymentEventIds {
-  LoadPayment,
-  StartPaymentStream,
-  
-  InitatePayment,
-  CompletePayment,
+  LoadPaymentOptions,
 
-  CancelPayment,
-  PaymentSuccess,
-  PaymentFailed
+  StartPaymentStream,
+  CompletePaymentStream,
+
+  PaymentStarted,
+  PaymentProcessUpdated,
+  PaymentCompleted,
+  PaymentCancelled,
+  PaymentFailed  
 }
 
 class PaymentEvent extends Equatable {
@@ -27,20 +28,21 @@ class PaymentLoadEvent extends PaymentEvent {
   final UnmodifiableListView<Product> products;
   final UnmodifiableListView<PaymentOption> paymentOptions;
 
-  PaymentLoadEvent(this.paymentService, this.products, { this.paymentOptions }) : super(PaymentEventIds.LoadPayment);
+  PaymentLoadEvent(this.paymentService, this.products, { this.paymentOptions }) 
+  : super(PaymentEventIds.LoadPaymentOptions);
 
   @override
   List<Object> get props => [products, paymentOptions];
 }
 
-class PaymentStartedEvent extends PaymentEvent {
+class PaymentProcessEvent extends PaymentEvent {
   final PaymentService paymentService;
   final ItemDelivery itemDeliveryHandler;
   final VerifyPurchase verifyPurchaseHandler;
   final PaymentOption option;
   final UnmodifiableListView<Product> products;
 
-  const PaymentStartedEvent(PaymentEventIds id, this.paymentService, this.option, 
+  const PaymentProcessEvent(PaymentEventIds id, this.paymentService, this.option, 
     this.itemDeliveryHandler, this.verifyPurchaseHandler, this.products)
     : super(id);
 
@@ -48,13 +50,13 @@ class PaymentStartedEvent extends PaymentEvent {
   List<Object> get props => [id, option, products];
 }
 
-class PaymentCompletedEvent extends PaymentStartedEvent {
+class PaymentCompletedEvent extends PaymentProcessEvent {
   final UnmodifiableListView<PaymentResult> paymentResults;
 
   PaymentCompletedEvent(PaymentService paymentService, 
     PaymentOption option, ItemDelivery itemDeliveryHandler, 
     VerifyPurchase verifyPurchaseHandler, this.paymentResults) 
-    : super(PaymentEventIds.CompletePayment, paymentService, option, 
+    : super(PaymentEventIds.PaymentCompleted, paymentService, option, 
       itemDeliveryHandler, verifyPurchaseHandler, UnmodifiableListView(paymentResults.map((p) => p.product).toList()));
 
   @override

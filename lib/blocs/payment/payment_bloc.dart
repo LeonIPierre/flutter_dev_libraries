@@ -26,7 +26,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   @override
   Stream<PaymentState> mapEventToState(PaymentEvent event) async* {
     switch (event.id) {
-      case PaymentEventIds.LoadPayment:
+      case PaymentEventIds.LoadPaymentOptions:
         var paymentEvent = event as PaymentLoadEvent;
 
         yield PaymentLoadingState();
@@ -41,14 +41,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                     products: UnmodifiableListView(products.map((p) =>
                         PaymentResult(PaymentStatus.None, product: p)).toList())));
         break;
-      case PaymentEventIds.InitatePayment:
-        var paymentEvent = event as PaymentStartedEvent;
+      case PaymentEventIds.PaymentStarted:
+        var paymentEvent = event as PaymentProcessEvent;
         yield await paymentEvent.paymentService.pay(paymentEvent.option, paymentEvent.products)
           .then((_) => PaymentIdealState(UnmodifiableListView(_paymentOptions),
                     products: UnmodifiableListView(paymentEvent.products.map((p) =>
                         PaymentResult(PaymentStatus.Started, product: p)).toList())));
         break;
-      case PaymentEventIds.CompletePayment:
+      case PaymentEventIds.PaymentProcessUpdated:
         var paymentEvent = event as PaymentCompletedEvent;
         yield await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults)
             .then((value) => paymentEvent.verifyPurchaseHandler(value))
@@ -57,19 +57,19 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             .catchError(() => PaymentErrorState(message: "Payment cancelled", 
               products: UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Error)).toList())));
         break;
-      case PaymentEventIds.PaymentSuccess:
+      case PaymentEventIds.PaymentCompleted:
         var paymentEvent = event as PaymentResultEvent;
 
         yield PaymentCompletedState(paymentEvent.paymentResults);
         break;
-      case PaymentEventIds.CancelPayment:
+      case PaymentEventIds.PaymentCancelled:
         yield PaymentErrorState(message: "Payment cancelled");
         break;
       case PaymentEventIds.PaymentFailed:
         yield PaymentErrorState(message: "");
         break;
       case PaymentEventIds.StartPaymentStream:
-        var paymentEvent = event as PaymentStartedEvent;
+        var paymentEvent = event as PaymentProcessEvent;
 
         yield PaymentLoadingState();
 
@@ -80,7 +80,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           // verify payment in the current application
           // deliver item
           if(event.every((element) => element.status == PaymentStatus.None)) {
-            add(PaymentStartedEvent(PaymentEventIds.InitatePayment, paymentEvent.paymentService, 
+            add(PaymentProcessEvent(PaymentEventIds.PaymentStarted, paymentEvent.paymentService, 
               paymentEvent.option, paymentEvent.itemDeliveryHandler, 
               paymentEvent.verifyPurchaseHandler, paymentEvent.products));
           } else if(event.every((element) => element.status == PaymentStatus.Started)) {
@@ -88,16 +88,22 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               paymentEvent.option, paymentEvent.itemDeliveryHandler, 
               paymentEvent.verifyPurchaseHandler, event));
           } else if(event.every((element) => element.status == PaymentStatus.Completed)) {
-            add(PaymentResultEvent(PaymentEventIds.PaymentSuccess, event));
+            add(PaymentResultEvent(PaymentEventIds.PaymentCompleted, event));
           }
           else if(event.any((element) => element.status == PaymentStatus.Error)) {
             add(PaymentResultEvent(PaymentEventIds.PaymentFailed, event));
           }
         });
 
-        add(PaymentStartedEvent(PaymentEventIds.InitatePayment, paymentEvent.paymentService, 
+        add(PaymentProcessEvent(PaymentEventIds.PaymentStarted, paymentEvent.paymentService, 
               paymentEvent.option, paymentEvent.itemDeliveryHandler, 
               paymentEvent.verifyPurchaseHandler, paymentEvent.products));
+        break;
+      case PaymentEventIds.CompletePaymentStream:
+        // TODO: Handle this case.
+        break;
+      case PaymentEventIds.PaymentProcessUpdated:
+        // TODO: Handle this case.
         break;
     }
   }
