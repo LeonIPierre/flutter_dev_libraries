@@ -1,8 +1,8 @@
+import 'package:dev_libraries/contracts/ecommerce/locationservice.dart';
 import 'package:dev_libraries/models/address.dart';
-import 'package:dev_libraries/services/ecommerce/locationservice.dart';
 import 'package:google_maps_webservice/geocoding.dart';
 
-class GooglePlacesService extends LocationService{
+class GooglePlacesService extends LocationService {
   GoogleMapsGeocoding geocoding;
 
   GooglePlacesService(String apiKey) {
