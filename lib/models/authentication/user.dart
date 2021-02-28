@@ -1,3 +1,4 @@
+import 'package:dev_libraries/models/authentication/userprofile.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -19,9 +20,11 @@ class User extends Equatable {
     @required this.id,
     @required this.name,
     this.type = UserType.Anonymous,
+    this.profile,
     this.accesToken
-  })  : assert(email != null),
-        assert(id != null);
+  })
+  : assert(email != null),
+  assert(id != null);
 
   /// The current user's email address.
   final String email;
@@ -37,11 +40,14 @@ class User extends Equatable {
 
   final String accesToken;
 
+  /// user profile containing payment info, addresses etc
+  final UserProfile profile;
+
   /// Empty user which represents an unauthenticated user.
   static const empty = User(email: '', id: '', name: null, type: UserType.Anonymous);
 
   @override
-  List<Object> get props => [email, id, name, type];
+  List<Object> get props => [email, id, name, type, profile];
 
   factory User.fromJson(Map<String, dynamic> json) => User(id: json['id'], 
     email: json['email'], name: json['name'], type: UserType.values[json['type']]);
