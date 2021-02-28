@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:dev_libraries/contracts/authentication/authenticationservice.dart';
-import 'package:dev_libraries/services/userservice.dart';
+import 'package:dev_libraries/contracts/authentication/userservice.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
@@ -38,7 +38,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       yield _mapAuthenticationUserChangedToState(event);
     } 
     else if(event is CreateNewUserEvent) {
-      yield await _userService.createUserAsync()
+      yield await _userService.create()
         .then((user) => _authenticationService
           .loginWithToken(user.accesToken)
           .then((_) => user))
