@@ -1,5 +1,4 @@
-import 'package:dev_libraries/repositories/configurationrepository.dart';
-
+import 'package:dev_libraries/contracts/configurationrepository.dart';
 enum ConfigurationEventIds {
   LoadAllConfigurations,
   SaveConfiguration,
