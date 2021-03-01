@@ -13,17 +13,17 @@ class Address {
     => Address(id ?? this.id, address ?? this.address, city ?? this.city, state ?? this.state, zip ?? this.zip);
 
   Map<String, dynamic> toJson() => {
-    'Id': id,
-    'Address1': address,
-    'City': city,
-    'State': state,
-    'Zip': zip,
-    'Latitude': latitude,
-    'Longitude': longitude
+    'id': id,
+    'address': address,
+    'city': city,
+    'state': state,
+    'zip': zip,
+    'latitude': latitude,
+    'longitude': longitude
   };
 
   @override
   String toString() {
-    return '$address, $city, $state, $zip';
+    return '[ $latitude, $longitude ] $address, $city, $state, $zip';
   }
 }
