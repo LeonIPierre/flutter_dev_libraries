@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:dev_libraries/contracts/analytics/analyticsservice.dart';
+import 'package:dev_libraries/contracts/logging/logservice.dart';
 import 'package:dev_libraries/models/logging/logging.dart';
-import 'package:dev_libraries/services/analytics/analyticsservice.dart';
-import 'package:dev_libraries/services/logging/logservice.dart';
 
 class DefaultBlocObserver extends BlocObserver {
   final AnalyticsService _analyticsService;
