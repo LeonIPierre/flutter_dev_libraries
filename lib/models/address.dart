@@ -23,7 +23,5 @@ class Address {
   };
 
   @override
-  String toString() {
-    return '[ $latitude, $longitude ] $address, $city, $state, $zip';
-  }
+  String toString() => '$address, $city $state, $zip';
 }
