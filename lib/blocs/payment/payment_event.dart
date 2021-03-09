@@ -43,7 +43,7 @@ class PaymentProcessEvent extends PaymentEvent {
   final UnmodifiableListView<Product> products;
 
   const PaymentProcessEvent(PaymentEventIds id, this.paymentService, this.option, 
-    this.itemDeliveryHandler, this.verifyPurchaseHandler, this.products)
+     this.products, { this.itemDeliveryHandler, this.verifyPurchaseHandler })
     : super(id);
 
   @override
@@ -57,7 +57,9 @@ class PaymentCompletedEvent extends PaymentProcessEvent {
     PaymentOption option, ItemDelivery itemDeliveryHandler, 
     VerifyPurchase verifyPurchaseHandler, this.paymentResults) 
     : super(PaymentEventIds.PaymentCompleted, paymentService, option, 
-      itemDeliveryHandler, verifyPurchaseHandler, UnmodifiableListView(paymentResults.map((p) => p.product).toList()));
+      UnmodifiableListView(paymentResults.map((p) => p.product).toList()),
+      itemDeliveryHandler: itemDeliveryHandler,
+      verifyPurchaseHandler: verifyPurchaseHandler);
 
   @override
   List<Object> get props => [option, products, paymentResults];

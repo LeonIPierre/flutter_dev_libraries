@@ -53,7 +53,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         yield await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults)
             .then((value) => paymentEvent.verifyPurchaseHandler(value))
             .then((value) => paymentEvent.itemDeliveryHandler(value))
-            .then((value) => PaymentCompletedState(UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Completed)).toList())))
+            .then<PaymentState>((value) => PaymentCompletedState(UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Completed)).toList())))
             .catchError(() => PaymentErrorState(message: "Payment cancelled", 
               products: UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Error)).toList())));
         break;
@@ -81,23 +81,24 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           // deliver item
           if(event.every((element) => element.status == PaymentStatus.None)) {
             add(PaymentProcessEvent(PaymentEventIds.PaymentStarted, paymentEvent.paymentService, 
-              paymentEvent.option, paymentEvent.itemDeliveryHandler, 
-              paymentEvent.verifyPurchaseHandler, paymentEvent.products));
+              paymentEvent.option, paymentEvent.products,
+              itemDeliveryHandler: paymentEvent.itemDeliveryHandler, 
+              verifyPurchaseHandler: paymentEvent.verifyPurchaseHandler));
           } else if(event.every((element) => element.status == PaymentStatus.Started)) {
             add(PaymentCompletedEvent(paymentEvent.paymentService, 
               paymentEvent.option, paymentEvent.itemDeliveryHandler, 
               paymentEvent.verifyPurchaseHandler, event));
           } else if(event.every((element) => element.status == PaymentStatus.Completed)) {
             add(PaymentResultEvent(PaymentEventIds.PaymentCompleted, event));
-          }
-          else if(event.any((element) => element.status == PaymentStatus.Error)) {
+          } else if(event.any((element) => element.status == PaymentStatus.Error)) {
             add(PaymentResultEvent(PaymentEventIds.PaymentFailed, event));
           }
         });
 
         add(PaymentProcessEvent(PaymentEventIds.PaymentStarted, paymentEvent.paymentService, 
-              paymentEvent.option, paymentEvent.itemDeliveryHandler, 
-              paymentEvent.verifyPurchaseHandler, paymentEvent.products));
+              paymentEvent.option, paymentEvent.products, 
+              itemDeliveryHandler: paymentEvent.itemDeliveryHandler, 
+              verifyPurchaseHandler: paymentEvent.verifyPurchaseHandler));
         break;
       case PaymentEventIds.CompletePaymentStream:
         // TODO: Handle this case.
