@@ -41,8 +41,8 @@ class PostmatesService extends ShippingService {
     var headers = Map<String, String>();
     headers.putIfAbsent('Accept', () => "application/json");
     headers.putIfAbsent('Content-Type', () => "application/x-www-form-urlencoded");
-    headers.putIfAbsent('Authorization', () => "Basic N2QyMzc1M2QtZWFlYy00YTM0LTkxNjctNjUwZjY2OTM5NWZlOg==");
-    //headers.putIfAbsent('Authorization', () => "Basic ${base64Url.encode(utf8.encode(_apiKey))}");
+    //headers.putIfAbsent('Authorization', () => "Basic N2QyMzc1M2QtZWFlYy00YTM0LTkxNjctNjUwZjY2OTM5NWZlOg==");
+    headers.putIfAbsent('Authorization', () => "Basic ${base64Url.encode(utf8.encode(_apiKey))}");
 
     return await http.post(url, headers: headers, body: body, encoding: Encoding.getByName('utf-8'))
       .then((response) {
@@ -66,10 +66,6 @@ class PostmatesService extends ShippingService {
       .catchError((error) {
         print(error); 
       });
-  }
-
-  void createOrder() {
-    var url = "$baseUrl/v1/customers/$_customerId/deliveries";
   }
 }
 
