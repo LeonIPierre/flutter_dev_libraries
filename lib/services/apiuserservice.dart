@@ -1,7 +1,9 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:dev_libraries/contracts/authentication/userservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
+import 'package:dev_libraries/models/ecommerce/purchase.dart';
 import 'package:http/http.dart' as http;
 
 class ApiUserService extends UserService{
@@ -18,6 +20,12 @@ class ApiUserService extends UserService{
   @override
   Future<User> create({User user}) {
     // TODO: implement create
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UnmodifiableListView<Purchase>> getPurchases(User user, { UnmodifiableListView<PurhaseState> states }) {
+    // TODO: implement getPurchases
     throw UnimplementedError();
   }
 }
