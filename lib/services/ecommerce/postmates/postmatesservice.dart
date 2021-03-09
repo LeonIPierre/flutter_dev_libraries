@@ -19,12 +19,7 @@ class PostmatesService extends ShippingService {
   final String baseUrl = "https://cors-anywhere.herokuapp.com/https://api.postmates.com";
 
   PostmatesService(this._customerId, this._apiKey);
-
-  @override
-  Future<void> deliver(List<Product> items, Location from, Location to) {
-    // TODO: implement deliver
-    throw UnimplementedError();
-  }
+  
 
   @override
   Future<double> getEstimate(Address from, Address to) {
@@ -66,6 +61,12 @@ class PostmatesService extends ShippingService {
       .catchError((error) {
         print(error); 
       });
+  }
+
+  @override
+  Future<void> deliver(List<Product> items, Location to, {Location from}) {
+    // TODO: implement deliver
+    throw UnimplementedError();
   }
 }
 
