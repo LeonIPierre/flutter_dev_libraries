@@ -8,14 +8,14 @@ import 'package:dev_libraries/models/products/product.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 class InAppPurchaseService extends PaymentService {
-  final InAppPurchaseConnection _connection = InAppPurchaseConnection.instance;
+  final InAppPurchase _connection = InAppPurchase.instance;
 
   @override
-  Stream<UnmodifiableListView<PaymentResult>> get purchases => _connection.purchaseUpdatedStream
+  Stream<UnmodifiableListView<PaymentResult>> get purchases => _connection.purchaseStream
     .asyncMap((event) => _mapToPurchaseState(event));
 
   InAppPurchaseService() {
-    InAppPurchaseConnection.enablePendingPurchases();
+    //InAppPurchase..enablePendingPurchases();
   }
 
   @override
@@ -30,12 +30,12 @@ class InAppPurchaseService extends PaymentService {
         throw Exception(productDetailResponse.error.message);
 
       return UnmodifiableListView(productDetailResponse.productDetails.map((details) {
-        if(details.skProduct != null)
-          return Product(details.id, details.title, details.description,
-              double.parse(details.skProduct.price), currencyCode: details.skProduct.priceLocale.currencyCode);
-        else if(details.skuDetail != null)
-          return Product(details.id, details.title, details.description,
-              double.parse(details.skuDetail.originalPrice));
+        // if(details.skProduct != null)
+        //   return Product(details.id, details.title, details.description,
+        //       double.parse(details.skProduct.price), currencyCode: details.skProduct.priceLocale.currencyCode);
+        // else if(details.skuDetail != null)
+        //   return Product(details.id, details.title, details.description,
+        //       double.parse(details.skuDetail.originalPrice));
 
         return null;
       }
@@ -60,8 +60,7 @@ class InAppPurchaseService extends PaymentService {
           Future.forEach(response.productDetails, (ProductDetails details) async {
             var success = await _connection.buyNonConsumable(purchaseParam: PurchaseParam(
                           productDetails: details,
-                          applicationUserName: null,
-                          sandboxTesting: true));
+                          applicationUserName: null));
 
             if(!success)
               throw Exception("Could not start purchase for $details");

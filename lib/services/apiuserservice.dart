@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dev_libraries/contracts/authentication/userservice.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
 import 'package:dev_libraries/models/ecommerce/purchase.dart';
+import 'package:dev_libraries/models/payment.dart';
 import 'package:http/http.dart' as http;
 
 class ApiUserService extends UserService{
@@ -11,10 +12,10 @@ class ApiUserService extends UserService{
 
   ApiUserService(this._apiUrl);
 
-  Future<User> createUserAsync() => http.get(_apiUrl)
+  Future<User> createUserAsync() => http.get(Uri(path: _apiUrl))
       .then((response) => User.fromJson(json.decode(response.body)));
 
-  Future<User> get(String id) => http.get("_apiUrl/$id")
+  Future<User> get(String id) => http.get(Uri(path: "_apiUrl/$id"))
       .then((response) => User.fromJson(json.decode(response.body)));
 
   @override
@@ -24,7 +25,7 @@ class ApiUserService extends UserService{
   }
 
   @override
-  Future<UnmodifiableListView<Purchase>> getPurchases(User user, { UnmodifiableListView<PurhaseState> states }) {
+  Future<UnmodifiableListView<PaymentResult>> getPurchases(User user, { UnmodifiableListView<PurhaseState> states }) {
     // TODO: implement getPurchases
     throw UnimplementedError();
   }
