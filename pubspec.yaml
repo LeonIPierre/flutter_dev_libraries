@@ -1,12 +1,12 @@
 name: dev_libraries
 description: A set of common patterns to be used across all Flutter projects
 publish_to: 'none'
-version: 1.0.0
+version: 2.0.0
 author: Leon Pierre
 homepage: https://www.google.com
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
