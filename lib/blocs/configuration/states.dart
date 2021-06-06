@@ -6,7 +6,7 @@ class ConfigurationUnitializedState extends ConfigurationState {}
 class ConfigurationLoadingState extends ConfigurationState {}
 
 class ConfigurationErrorState extends ConfigurationState {
-  final String message;
+  final String? message;
 
   ConfigurationErrorState({this.message});
 }

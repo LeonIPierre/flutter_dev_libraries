@@ -7,7 +7,7 @@ abstract class AdService {
 
   AdConfiguration loadAd(AdConfiguration configuration, { Function(AdEventId) eventListener });
 
-  Future<AdConfiguration> loadAdAsync(AdConfiguration configuration, { Function(AdEventId, AdConfiguration) eventListener });
+  Future<AdConfiguration?> loadAdAsync(AdConfiguration configuration, { Function(AdEventId, AdConfiguration) eventListener });
 
   Future<Ad> requestAd(AdConfiguration configuration);
 

@@ -9,9 +9,9 @@ import 'package:dev_libraries/models/ads/adconfiguration.dart';
 import 'package:dev_libraries/models/ads/adsize.dart';
 
 class AdMobService extends AdService {
-  AdmobBanner _bannerAd;
-  AdmobInterstitial _interstitialAd;
-  AdmobReward _rewardAd;
+  late AdmobBanner _bannerAd;
+  late AdmobInterstitial _interstitialAd;
+  late AdmobReward _rewardAd;
   final Map<String, dynamic> _adUnitIds;
 
   AdMobService(String appId, this._adUnitIds) {
@@ -30,15 +30,15 @@ class AdMobService extends AdService {
   }
 
   @override
-  AdConfiguration loadAd(AdConfiguration configuration, {Function(AdEventId) eventListener}) {
+  AdConfiguration loadAd(AdConfiguration configuration, {Function(AdEventId)? eventListener}) {
     String adUnitId = _getAdUnitId(configuration.adType);
 
     switch (configuration.adType) {
       case AdType.Banner:
         _bannerAd = AdmobBanner(
             adUnitId: adUnitId,
-            adSize: configuration.adSize == null ? AdmobBannerSize.BANNER : _mapToAdSize(configuration.adSize),
-            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+            adSize: configuration.adSize == null ? AdmobBannerSize.BANNER : _mapToAdSize(configuration.adSize!),
+            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
               if(eventListener != null)
                 eventListener(_mapToAdEventId(event));
             });
@@ -47,7 +47,7 @@ class AdMobService extends AdService {
       case AdType.InterstitialVideo:
         _interstitialAd = AdmobInterstitial(
             adUnitId: adUnitId,
-            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
               if(eventListener != null)
                 eventListener(_mapToAdEventId(event));
             });
@@ -56,7 +56,7 @@ class AdMobService extends AdService {
       case AdType.Reward:
         _rewardAd = AdmobReward(
             adUnitId: adUnitId,
-            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
               if(eventListener != null)
                 eventListener(_mapToAdEventId(event));
             });
@@ -70,8 +70,8 @@ class AdMobService extends AdService {
   }
 
   @override
-  Future<AdConfiguration> loadAdAsync(AdConfiguration configuration,
-      {Function(AdEventId, AdConfiguration) eventListener}) {
+  Future<AdConfiguration?> loadAdAsync(AdConfiguration configuration,
+      {Function(AdEventId, AdConfiguration)? eventListener}) {
 
     String adUnitId = _getAdUnitId(configuration.adType);
     Completer<AdConfiguration> completer = Completer<AdConfiguration>();
@@ -81,8 +81,8 @@ class AdMobService extends AdService {
         return Future.value(
            _bannerAd = AdmobBanner(
             adUnitId: adUnitId,
-            adSize: configuration.adSize == null ? AdmobBannerSize.BANNER : _mapToAdSize(configuration.adSize),
-            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+            adSize: configuration.adSize == null ? AdmobBannerSize.BANNER : _mapToAdSize(configuration.adSize!),
+            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
               if(eventListener != null)
                 eventListener(_mapToAdEventId(event), configuration);
             })
@@ -92,7 +92,7 @@ class AdMobService extends AdService {
         var ad = Future.value(
           _interstitialAd = AdmobInterstitial(
             adUnitId: adUnitId,
-            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
               if(eventListener != null)
                 completer.complete(eventListener(_mapToAdEventId(event), configuration));
           })).then((ad) {
@@ -105,15 +105,17 @@ class AdMobService extends AdService {
         return Future.wait([Future.value(
           _rewardAd = AdmobReward(
             adUnitId: adUnitId,
-            listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
               if(eventListener != null)
                 completer.complete(eventListener(_mapToAdEventId(event), configuration));
-            })),
-            completer.future]).then((value) => value.last);
+            })
+            ).then((value) => configuration),
+            completer.future])
+            .then((value) => value.last);
       case AdType.Internal:
         return Future.value(configuration);
       default:
-        return null;
+        return throw Exception("Invalid request type: ${configuration.adType}");
     }
   }
 
@@ -207,7 +209,8 @@ class AdMobService extends AdService {
   }
   
   Future<Ad> _showInterstitialAd() async {
-    if (await _interstitialAd.isLoaded) {
+    var isLoaded = await _interstitialAd.isLoaded;
+    if (isLoaded!) {
       _interstitialAd.show();
       return Ad(_interstitialAd);
     }

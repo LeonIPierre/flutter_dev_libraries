@@ -24,12 +24,12 @@ class LogOutFailure implements Exception {}
 /// Repository which manages user authentication.
 /// {@endtemplate}
 class FirebaseAuthenticationRepository extends AuthenticationService {
-  firebase.FirebaseAuth _firebaseAuth;
-  GoogleSignIn _googleSignIn;
+  late firebase.FirebaseAuth _firebaseAuth;
+  late GoogleSignIn _googleSignIn;
 
   initialize({
-    firebase.FirebaseAuth firebaseAuth,
-    GoogleSignIn googleSignIn,
+    firebase.FirebaseAuth? firebaseAuth,
+    GoogleSignIn? googleSignIn,
   }) async {
     await Firebase.initializeApp()
       .then((app) {
@@ -49,14 +49,14 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   ///
   /// Throws a [SignUpFailure] if an exception occurs.
   Future<void> signUp({
-    @required String email,
-    @required String password,
+    @required String? email,
+    @required String? password,
   }) async {
     assert(email != null && password != null);
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+        email: email ?? '',
+        password: password ?? '',
       );
     } on Exception {
       throw SignUpFailure();
@@ -74,7 +74,7 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
       case AuthenticationProvider.Google:
         try {
           final googleUser = await _googleSignIn.signIn();
-          final googleAuth = await googleUser.authentication;
+          final googleAuth = await googleUser!.authentication;
           final credential = firebase.GoogleAuthProvider.credential(
             accessToken: googleAuth.accessToken,
             idToken: googleAuth.idToken,
@@ -104,11 +104,9 @@ class FirebaseAuthenticationRepository extends AuthenticationService {
   /// Signs in with the provided [email] and [password].
   ///
   /// Throws a [LogInWithEmailAndPasswordFailure] if an exception occurs.
-  Future<void> logInWithEmailAndPassword({
-    @required String email,
-    @required String password,
-  }) async {
-    assert(email != null && password != null);
+  Future<void> logInWithEmailAndPassword(
+    String email,
+    String password) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
         email: email,

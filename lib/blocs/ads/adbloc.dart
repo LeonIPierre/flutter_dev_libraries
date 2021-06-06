@@ -16,10 +16,10 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   final int adIntervalSeconds;
   final double _adMinimumThreshold = 10;
 
-  BehaviorSubject<Ad> ads = BehaviorSubject<Ad>();
+  late BehaviorSubject<Ad> ads = BehaviorSubject<Ad>();
 
   /// timer of how often ads should show. Defaults to ${adIntervalSeconds}
-  Stream<double> _timerStream;
+  late Stream<double> _timerStream;
 
   /// history of ads events requested and shown
   ReplaySubject<AdEvent> _adHistoryStream = ReplaySubject<AdEvent>();
@@ -30,20 +30,20 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   /// application activities like sleep, exiting etc
   BehaviorSubject<AdDataPointEvent> _appActivityStream = BehaviorSubject<AdDataPointEvent>();
 
-  StreamSubscription _algorithmSubscription;
+  late StreamSubscription _algorithmSubscription;
 
-  AdService _adService;
+  late AdService _adService;
 
   Set<AdType> _visibleAds = Set<AdType>();
 
-  Node<AdType> _currentAdNode;
+  late Node<AdType> _currentAdNode;
 
   double _minValue = 0;
 
   double _maxValue = 0;
 
-  AdBloc(String appId, {AdService adService, Map<String, dynamic> configuration, this.adIntervalSeconds = 30}) : super(AdLoadingState()) {
-    Map<String, dynamic> adUnitIds = Map.from(configuration)..removeWhere((k, v) => !k.contains("AdUnitId"));
+  AdBloc(String appId, {AdService? adService, Map<String, dynamic>? configuration, this.adIntervalSeconds = 30}) : super(AdLoadingState()) {
+    Map<String, dynamic> adUnitIds = Map.from(configuration!)..removeWhere((k, v) => !k.contains("AdUnitId"));
     this._adService = adService ?? AdMobService(appId, adUnitIds); 
   }
 
@@ -52,7 +52,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     switch(event.id)
     {
       case AdEventId.LoadAd:
-        yield await _adService.loadAdAsync(event.adConfiguration, 
+        yield await _adService.loadAdAsync(event.adConfiguration!, 
           eventListener: (event, config) => _mapAdEventCallback(event, config))
           .then((configuration) => _requestAd(event.copy(configuration: configuration)))
           .then((ad) {
@@ -78,7 +78,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
           _timerStream.startWith(0.0),
           
           _usageStream /// usage rate
-            .scan((prev, curr, i) => AdDataPointEvent(_mapUsageEventToRate(prev, curr).value))
+            //.scan((prev, curr, i) => AdDataPointEvent(_mapUsageEventToRate(prev, curr).value))
             .map((event) => event.value)
             .startWith(0.0),
             
@@ -96,25 +96,26 @@ class AdBloc extends Bloc<AdEvent, AdState> {
         .where((value) => value != 0 && _meetsMinimumThreshold(value))
         .asBroadcastStream();
 
-        var means = usage
-          .scan((double accumulated, value, index) {
-            return index == 0 ? value : accumulated + (value - accumulated) / index;
-          })
+        Stream<double> means = usage
+          //.scan((accumulated, value, index) => null, 0)
+          //  .scan((accumulated, double value, int index) =>
+          //    index == 0 ? value : accumulated + (value - accumulated) / index;
+          //  )
           .asBroadcastStream();
 
         var samples = usage
           //sample 
-          .zipWith(means.pairwise(), (value, means) {
-             return (value - means[0]) * (value - means[1]);
-          })
+          // .zipWith(means.pairwise(), (value, means) {
+          //    return (value - means[0]) * (value - means[1]);
+          // })
           .scan((double accumulated, value, index) {
             return accumulated + value;
           }, 0.0);
 
-        var variance = samples
-          .scan((accumulated, value, index) {
-            return index > 1 ? value / (index -1) : 0.0;
-          });
+        var variance = samples;
+          // .scan((accumulated, value, index) {
+          //   return index > 1 ? value / (index -1) : 0.0;
+          // });
         
         var standardDeviation = variance
         .map((value) => sqrt(value))
@@ -151,13 +152,13 @@ class AdBloc extends Bloc<AdEvent, AdState> {
         yield AdStreamingState();
         break;
       case AdEventId.UpdateUserActivity:
-        _usageStream.add(event);
+        //_usageStream.add(event);
         break;
       case AdEventId.UpdateSystemActivity:
-        _appActivityStream.add(event);
+        //_appActivityStream.add(event);
         break;
       case AdEventId.AdClosed:
-        _visibleAds.remove(event.adConfiguration.adType);
+        _visibleAds.remove(event.adConfiguration!.adType);
         break;
       case AdEventId.EndAdStream:
         _visibleAds.clear();
@@ -185,7 +186,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     _currentAdNode = _currentAdNode.move(value);
 
     return _adService.loadAdAsync(
-      previousEvent.adConfiguration.copy(adType: _currentAdNode.value), 
+      previousEvent.adConfiguration!.copy(adType: _currentAdNode.value), 
       eventListener: (event, configuration) => _mapAdEventCallback(event, configuration))
       .then((configuration) {
         AdEvent newAdEvent = previousEvent.copy(id: AdEventId.AdRequest, configuration: configuration);
@@ -195,16 +196,16 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   }
 
   bool _isAdRequestValid(AdEvent ad) {
-    if(_visibleAds.contains(ad.adConfiguration.adType))
+    if(_visibleAds.contains(ad.adConfiguration!.adType))
     {
       print("SHOWING: $ad");
       return false;
     }
 
-    var prevAdRequest = _adHistoryStream.values
+    AdEvent prevAdRequest = _adHistoryStream.values
       .lastWhere((event) {
-         return event.adConfiguration.adType == ad.adConfiguration.adType;
-      }, orElse: () => null);
+         return event.adConfiguration!.adType == ad.adConfiguration!.adType;
+      });
 
     if(prevAdRequest == null)
     {
@@ -218,7 +219,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
       return false;
     }
 
-    if(prevAdRequest.timestamp.difference(DateTime.now()) < Duration(seconds: 15))
+    if(prevAdRequest.timestamp!.difference(DateTime.now()) < Duration(seconds: 15))
     {
       print("WITHIN_THRESHOLD: $prevAdRequest");
       return false;
@@ -241,7 +242,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
     if(prev == null)
       return current;
     
-    var timeDifference = (current.timestamp.millisecondsSinceEpoch - prev.timestamp.millisecondsSinceEpoch) / 1000;
+    var timeDifference = (current.timestamp!.millisecondsSinceEpoch - prev.timestamp!.millisecondsSinceEpoch) / 1000;
 
     var rate = timeDifference / optimal;
     /// inverse relationship with ads. high, fast paced usage (low time difference) = low ad show rate
@@ -261,10 +262,10 @@ class AdBloc extends Bloc<AdEvent, AdState> {
   }
 
   Future<Ad> _requestAd(AdEvent event) async {
-    return _adService.requestAd(event.adConfiguration)
+    return _adService.requestAd(event.adConfiguration!)
               .then((ad) {
                 print("Requesting ad $event");
-                _visibleAds.add(event.adConfiguration.adType);
+                _visibleAds.add(event.adConfiguration!.adType);
                 _adHistoryStream.add(event);
                 return ad;
               });

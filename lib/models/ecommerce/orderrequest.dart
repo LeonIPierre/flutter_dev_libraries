@@ -4,7 +4,7 @@ import 'package:dev_libraries/models/products/product.dart';
 class OrderRequest {
   final Location pickupLocation;
 
-  final Location dropoffLocation;
+  final Location? dropoffLocation;
 
   final List<Product> items;
 

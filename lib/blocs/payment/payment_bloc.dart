@@ -18,8 +18,8 @@ typedef VerifyPurchase = Future<UnmodifiableListView<PaymentResult>> Function(
     UnmodifiableListView<PaymentResult> products);
 
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
-  UnmodifiableListView<PaymentOption> _paymentOptions;
-  StreamSubscription _paymentSubscription;
+  late UnmodifiableListView<PaymentOption> _paymentOptions;
+  late StreamSubscription _paymentSubscription;
 
   PaymentBloc() : super(PaymentEmptyState());
 
@@ -50,12 +50,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         break;
       case PaymentEventIds.PaymentProcessUpdated:
         var paymentEvent = event as PaymentCompletedEvent;
-        yield await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults)
-            .then((value) => paymentEvent.verifyPurchaseHandler(value))
-            .then((value) => paymentEvent.itemDeliveryHandler(value))
-            .then<PaymentState>((value) => PaymentCompletedState(UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Completed)).toList())))
+
+        yield await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults!)
+            .then((value) => paymentEvent.verifyPurchaseHandler!(value))
+            .then((value) => paymentEvent.itemDeliveryHandler!(value))
+            .then<PaymentState>((value) => PaymentCompletedState(UnmodifiableListView(paymentEvent.paymentResults!.map((p) => p.clone(status: PaymentStatus.Completed)).toList())))
             .catchError(() => PaymentErrorState(message: "Payment cancelled", 
-              products: UnmodifiableListView(paymentEvent.paymentResults.map((p) => p.clone(status: PaymentStatus.Error)).toList())));
+              products: UnmodifiableListView(paymentEvent.paymentResults!.map((p) => p.clone(status: PaymentStatus.Error)).toList())));
         break;
       case PaymentEventIds.PaymentCompleted:
         var paymentEvent = event as PaymentResultEvent;
@@ -86,8 +87,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               verifyPurchaseHandler: paymentEvent.verifyPurchaseHandler));
           } else if(event.every((element) => element.status == PaymentStatus.Started)) {
             add(PaymentCompletedEvent(paymentEvent.paymentService, 
-              paymentEvent.option, paymentEvent.itemDeliveryHandler, 
-              paymentEvent.verifyPurchaseHandler, event));
+              paymentEvent.option, paymentEvent.itemDeliveryHandler!, 
+              paymentEvent.verifyPurchaseHandler!, event));
           } else if(event.every((element) => element.status == PaymentStatus.Completed)) {
             add(PaymentResultEvent(PaymentEventIds.PaymentCompleted, event));
           } else if(event.any((element) => element.status == PaymentStatus.Error)) {
@@ -111,7 +112,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   @override
   Future<void> close() {
-    _paymentSubscription?.cancel();
+    _paymentSubscription.cancel();
     return super.close();
   }
 

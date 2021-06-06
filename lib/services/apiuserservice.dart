@@ -19,13 +19,13 @@ class ApiUserService extends UserService{
       .then((response) => User.fromJson(json.decode(response.body)));
 
   @override
-  Future<User> create({User user}) {
+  Future<User> create({User? user}) {
     // TODO: implement create
     throw UnimplementedError();
   }
 
   @override
-  Future<UnmodifiableListView<PaymentResult>> getPurchases(User user, { UnmodifiableListView<PurhaseState> states }) {
+  Future<UnmodifiableListView<PaymentResult>> getPurchases(User user, { UnmodifiableListView<PurhaseState>? states }) {
     // TODO: implement getPurchases
     throw UnimplementedError();
   }

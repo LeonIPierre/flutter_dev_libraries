@@ -1,7 +1,9 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:dev_libraries/contracts/ecommerce/shippingservice.dart';
 import 'package:dev_libraries/models/address.dart';
+import 'package:dev_libraries/models/ecommerce/deliverystatus.dart';
 import 'package:dev_libraries/models/products/product.dart';
 import 'package:dev_libraries/models/ecommerce/location.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +22,17 @@ class PostmatesService extends ShippingService {
 
   PostmatesService(this._customerId, this._apiKey);
   
+  @override
+  Future<void> deliver(List<Product> items, Location to, {Location? from}) {
+    // TODO: implement deliver
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UnmodifiableListView<DeliveryStatus>> getDeliveryStatus(List<Product> items) {
+    // TODO: implement getDeliveryStatus
+    throw UnimplementedError();
+  }
 
   @override
   Future<double> getEstimate(Address from, Address to) {
@@ -27,7 +40,7 @@ class PostmatesService extends ShippingService {
     throw UnimplementedError();
   }
 
-  Future<PostmatesDeliveryStatus> getDeliveryQuote(Address from, Address to) async{
+  Future<PostmatesDeliveryStatus?> getDeliveryQuote(Address from, Address to) async{
     var url = "$baseUrl/v1/customers/$_customerId/delivery_quotes";
     var body = Map<String, dynamic>();
     body['dropoff_address'] = "${from.address}, ${from.city}, ${from.state}, ${from.zip}";
@@ -39,7 +52,7 @@ class PostmatesService extends ShippingService {
     //headers.putIfAbsent('Authorization', () => "Basic N2QyMzc1M2QtZWFlYy00YTM0LTkxNjctNjUwZjY2OTM5NWZlOg==");
     headers.putIfAbsent('Authorization', () => "Basic ${base64Url.encode(utf8.encode(_apiKey))}");
 
-    return await http.post(url, headers: headers, body: body, encoding: Encoding.getByName('utf-8'))
+    return await http.post(Uri(path: url), headers: headers, body: body, encoding: Encoding.getByName('utf-8'))
       .then((response) {
         switch(response.statusCode)
         {
@@ -62,12 +75,6 @@ class PostmatesService extends ShippingService {
         print(error); 
       });
   }
-
-  @override
-  Future<void> deliver(List<Product> items, Location to, {Location from}) {
-    // TODO: implement deliver
-    throw UnimplementedError();
-  }
 }
 
 class UserAgentClient extends http.BaseClient {
@@ -83,8 +90,8 @@ class UserAgentClient extends http.BaseClient {
     return _inner.send(request);
   }
 
-  Future<http.Response> post(dynamic url, {Map<String, String> headers, dynamic body, Encoding encoding}) {
-    headers.putIfAbsent('Accept', () => "application/json");
+  Future<http.Response> post(dynamic url, {Map<String, String>? headers, dynamic body, Encoding? encoding}) {
+    headers!.putIfAbsent('Accept', () => "application/json");
     headers.putIfAbsent('Content-Type', () => "application/x-www-form-urlencoded");
     headers.putIfAbsent('Authorization', () => "Basic ${base64Url.encode(utf8.encode(_apiKey))}");
     return _inner.post(url, headers: headers, body: body, encoding: encoding);

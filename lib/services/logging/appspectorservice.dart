@@ -2,8 +2,8 @@
 import 'package:dev_libraries/contracts/logging/logservice.dart';
 
 class AppSpectorService extends LogService {
-  AppSpectorService({String androidKey, String iosKey}) {
-    initialize(androidKey: androidKey, iosKey: iosKey);
+  AppSpectorService({String? androidKey, String? iosKey}) {
+    initialize(androidKey: androidKey ?? '', iosKey: iosKey ?? '');
   }
 
   @override
@@ -12,7 +12,7 @@ class AppSpectorService extends LogService {
   }
 
   @override
-  void initialize({String androidKey, String iosKey}) {
+  void initialize({String? androidKey, String? iosKey}) {
     // var config = appSpector.Config();
     // config.iosApiKey = iosKey;
     // config.androidApiKey = androidKey;

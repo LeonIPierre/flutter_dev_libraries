@@ -35,14 +35,14 @@ class StripeService extends PaymentService {
               currencyCode: product.currencyCode,
               description: product.description,
               unitPrice: product.price.toString()
-            )),
+            )).toList(),
             totalPrice: total.toString(),
             currencyCode: currencyCode
           ),
           applePayOptions: ApplePayPaymentOptions(
             countryCode: currencyCode,
             currencyCode: currencyCode,
-            items: products.map((product) => ApplePayItem(label: product.name, amount: product.price.toString()))
+            items: products.map((product) => ApplePayItem(label: product.name, amount: product.price.toString())).toList()
           )
         ).then((token) {
           _purchasesSubject.add(UnmodifiableListView(
@@ -74,7 +74,7 @@ class StripeService extends PaymentService {
         => purchase.clone(status: PaymentStatus.Completed))));
   
   @override
-  Future<PaymentResult> completePayment(PaymentResult product) async =>
+  Future<PaymentResult?> completePayment(PaymentResult product) async =>
      await StripePayment.completeNativePayRequest().then((_) => null);
   
   @override

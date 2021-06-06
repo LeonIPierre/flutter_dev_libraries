@@ -5,9 +5,9 @@ import 'package:dev_libraries/contracts/configurationrepository.dart';
 
 class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
   Map<String, dynamic> _configuration = Map<String, dynamic>();
-  List<ConfigurationRepository> _repositories = [];
+  List<ConfigurationRepository>? _repositories = [];
 
-  ConfigurationBloc({ List<ConfigurationRepository> repositories })
+  ConfigurationBloc({ List<ConfigurationRepository>? repositories })
       : _repositories = repositories,
         super(ConfigurationUnitializedState());
 
@@ -17,9 +17,9 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
       case ConfigurationEventIds.LoadAllConfigurations:
         yield ConfigurationLoadingState();
 
-        List<String> keys = (event as ConfigurationIntializedEvent).keys;
+        List<String>? keys = (event as ConfigurationIntializedEvent).keys;
         
-        yield await Future.wait(_repositories.map((e) => e.getAll(keys: keys)))
+        yield await Future.wait(_repositories!.map((e) => e.getAll(keys: keys!)))
             .then<ConfigurationState>((values) {
               values.forEach((element) {
                 _configuration.addAll(element);
@@ -32,7 +32,7 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
       case ConfigurationEventIds.SaveConfiguration:
         var ev = (event as ConfigurationChangedEvent);
 
-      yield await _repositories.firstWhere((element) => element.runtimeType == ev.repository.runtimeType)
+      yield await _repositories!.firstWhere((element) => element.runtimeType == ev.repository.runtimeType)
         .save(ev.key, ev.value)
         .then<ConfigurationState>((success) {
             if(success) {

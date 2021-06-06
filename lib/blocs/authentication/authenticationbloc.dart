@@ -14,12 +14,10 @@ part 'states.dart';
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final AuthenticationService _authenticationService;
   final UserService _userService;
-  StreamSubscription<User> _userSubscription;
+  late StreamSubscription<User> _userSubscription;
   
-  AuthenticationBloc({
-    @required AuthenticationService authenticationService,
-    @required UserService userService
-  })  : assert(authenticationService != null),
+  AuthenticationBloc(AuthenticationService authenticationService,
+    UserService userService)  : assert(authenticationService != null),
         assert(userService != null),
         _authenticationService = authenticationService,
         _userService = userService,
@@ -40,7 +38,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     else if(event is CreateNewUserEvent) {
       yield await _userService.create()
         .then((user) => _authenticationService
-          .loginWithToken(user.accesToken)
+          .loginWithToken(user.accesToken!)
           .then((_) => user))
         .then((user) => AuthenticationState.anonymous(user));
     }
@@ -51,7 +49,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   @override
   Future<void> close() {
-    _userSubscription?.cancel();
+    _userSubscription.cancel();
     return super.close();
   }
 

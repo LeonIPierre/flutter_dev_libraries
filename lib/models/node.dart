@@ -1,9 +1,9 @@
 class Node<T> {
   final T value;
-  Node<T> left, right;
+  Node<T>? left, right;
   Node(this.value, {this.left, this.right});
 
-  Node<T> move(int steps, [Node<T> node]) {
+  Node<T> move(int steps, [Node<T>? node]) {
     node = node ?? this;
 
     if(steps == 0) {

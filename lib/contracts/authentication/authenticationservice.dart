@@ -22,10 +22,7 @@ abstract class AuthenticationService {
 
   Future<void> loginInWithProvider(AuthenticationProvider provider);
 
-  Future<void> logInWithEmailAndPassword({
-    @required String email,
-    @required String password,
-  });
+  Future<void> logInWithEmailAndPassword(String email, String password);
 
   Future<void> logOut();
 }

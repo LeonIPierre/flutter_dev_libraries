@@ -27,19 +27,11 @@ class InAppPurchaseService extends PaymentService {
       return _connection.queryProductDetails(products.map((product) => product.id).toSet());
     }).then((productDetailResponse) {
       if (productDetailResponse.error != null)
-        throw Exception(productDetailResponse.error.message);
+        throw Exception(productDetailResponse.error!.message);
 
       return UnmodifiableListView(productDetailResponse.productDetails.map((details) {
-        // if(details.skProduct != null)
-        //   return Product(details.id, details.title, details.description,
-        //       double.parse(details.skProduct.price), currencyCode: details.skProduct.priceLocale.currencyCode);
-        // else if(details.skuDetail != null)
-        //   return Product(details.id, details.title, details.description,
-        //       double.parse(details.skuDetail.originalPrice));
-
-        return null;
-      }
-      ));
+        return Product(details.id, details.title, details.description, double.parse(details.price));
+      }));
     });
   }
 
@@ -52,10 +44,10 @@ class InAppPurchaseService extends PaymentService {
         return await _connection.isAvailable().then((success) {
           if (!success) throw Exception("Failed to connect to $paymentOption store");
 
-          return _connection.queryProductDetails(products.map((product) => product.id));
+          return _connection.queryProductDetails(products.map((product) => product.id).toSet());
           }).then((response) {
           if (response.error != null)
-            throw Exception(response.error.message);
+            throw Exception(response.error!.message);
 
           Future.forEach(response.productDetails, (ProductDetails details) async {
             var success = await _connection.buyNonConsumable(purchaseParam: PurchaseParam(
@@ -68,11 +60,9 @@ class InAppPurchaseService extends PaymentService {
             return details;
           });
         });
-        break;
       case PaymentOption.CreditCard:
       case PaymentOption.PayPal:
         throw Exception("InAppPurchases doesn't support $paymentOption");
-        break;
     }
   }
 
@@ -91,12 +81,12 @@ class InAppPurchaseService extends PaymentService {
         case PurchaseStatus.error:
            return PaymentResult(PaymentStatus.Cancelled);
         default:
-          return null;
+          throw Exception("InAppPurchases doesn't support $status");
       }
   }
 
   Future<UnmodifiableListView<PaymentResult>> _mapToPurchaseState(List<PurchaseDetails> purchases) async {
-    return await getStoreProductsAsync(purchases.map((p) => Product(p.productID, null, null, null)))
+    return await getStoreProductsAsync(UnmodifiableListView(purchases.map((p) => Product(p.productID, '', '', 0))))
       .then((products) {
         return UnmodifiableListView(products.map((product) {
           var purchase = purchases.firstWhere((p) => p.productID == product.id);
@@ -119,7 +109,7 @@ class InAppPurchaseService extends PaymentService {
 
   @override
   Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> products) {
-    Future.wait(products.map((product) => completePayment(product)));
-    return null;
+    return Future.wait(products.map((product) => completePayment(product)))
+      .then((value) => UnmodifiableListView(value));
   }
 }

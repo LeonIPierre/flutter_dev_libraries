@@ -3,7 +3,7 @@ import 'package:dev_libraries/models/address.dart';
 import 'package:google_maps_webservice/geocoding.dart';
 
 class GooglePlacesService extends LocationService {
-  GoogleMapsGeocoding geocoding;
+  late GoogleMapsGeocoding geocoding;
 
   GooglePlacesService(String apiKey) {
     geocoding = GoogleMapsGeocoding(apiKey: apiKey);

@@ -13,8 +13,7 @@ class LoginCubit extends Cubit<LoginState> {
 
   final AuthenticationService _authenticationRepository;
 
-  LoginCubit(this._authenticationRepository)
-      : assert(_authenticationRepository != null),
+  LoginCubit(this._authenticationRepository) :
         super(const LoginState());
 
   void emailChanged(String value) {
@@ -51,10 +50,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     emit(LoginLoadingState());
 
-    await _authenticationRepository.logInWithEmailAndPassword(
-      email: email,
-      password: password,
-    )
+    await _authenticationRepository.logInWithEmailAndPassword(email, password)
     .then((_) => emit(LoginSuccessState()))
     .catchError((error) => emit(LoginFailedState(message: error.toString())));
   }
@@ -86,7 +82,7 @@ class LoginCubit extends Cubit<LoginState> {
     return isValid;
   }
 
-  String _getErrorMessage(FormInput input) {
+  String? _getErrorMessage(FormInput input) {
     switch (input.id) {
       case "Email":
         return "Please enter a valid email";

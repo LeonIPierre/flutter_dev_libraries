@@ -12,7 +12,7 @@ abstract class PaymentService {
 
   Future<void> payWithCreditCard(CreditCard creditCard, UnmodifiableListView<Product> products);
 
-  Future<PaymentResult> completePayment(PaymentResult payment);
+  Future<PaymentResult?> completePayment(PaymentResult payment);
 
   Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> payments);
 

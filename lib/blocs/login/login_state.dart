@@ -12,16 +12,16 @@ class LoginState extends Equatable {
   final FormInput email;
   final FormInput password;
   final bool isValid;
-  final String message;
+  final String? message;
 
   @override
-  List<Object> get props => [email, password, isValid];
+  List<Object?> get props => [email, password, isValid];
 
   LoginState copyWith({
-    FormInput email,
-    FormInput password,
-    bool isValid,
-    String message
+    FormInput? email,
+    FormInput? password,
+    bool? isValid,
+    String? message
   }) {
     return LoginState(
       email: email ?? this.email,
@@ -35,15 +35,15 @@ class LoginState extends Equatable {
 class LoginLoadingState extends LoginState { }
 
 class LoginFailedState extends LoginState { 
-  final String message;
+  final String? message;
 
   LoginFailedState({this.message});
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message];
 }
 
 class LoginSuccessState extends LoginState {
   @override
-  List<Object> get props => [true];
+  List<Object?> get props => [true];
  }

@@ -27,27 +27,27 @@ class User extends Equatable {
   assert(id != null);
 
   /// The current user's email address.
-  final String email;
+  final String? email;
 
   /// The current user's id.
-  final String id;
+  final String? id;
 
   /// The current user's name (display name).
-  final String name;
+  final String? name;
 
   /// The users account type (free, paid etc.)
   final UserType type;
 
-  final String accesToken;
+  final String? accesToken;
 
   /// user profile containing payment info, addresses etc
-  final UserProfile profile;
+  final UserProfile? profile;
 
   /// Empty user which represents an unauthenticated user.
   static const empty = User(email: '', id: '', name: null, type: UserType.Anonymous);
 
   @override
-  List<Object> get props => [email, id, name, type, profile];
+  List<Object?> get props => [email, id, name, type, profile];
 
   factory User.fromJson(Map<String, dynamic> json) => User(id: json['id'], 
     email: json['email'], name: json['name'], type: UserType.values[json['type']]);

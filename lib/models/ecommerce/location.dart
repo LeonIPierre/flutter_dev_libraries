@@ -3,7 +3,7 @@ import 'package:dev_libraries/models/authentication/user.dart';
 import '../address.dart';
 
 class Location {
-  final User user;
+  final User? user;
 
   final Address address;
 

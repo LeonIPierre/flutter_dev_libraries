@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferencesRepository extends ConfigurationRepository {
   final Future<SharedPreferences> preferences = SharedPreferences.getInstance();
 
-  Future<Map<String, dynamic>> getAll({ List<String> keys }) async {
+  Future<Map<String, dynamic>> getAll({ List<String>? keys }) async {
     if(keys == null)
       throw Exception("no keys found");
 

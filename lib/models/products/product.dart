@@ -7,7 +7,7 @@ class Product extends Equatable {
   final double price;
   final String currencyCode;
 
-  Product(this.id, this.name, this.description, this.price, { this.currencyCode = "USD" });
+  const Product(this.id, this.name, this.description, this.price, { this.currencyCode = "USD" });
 
   @override
   List<Object> get props => [id, name, description, price];

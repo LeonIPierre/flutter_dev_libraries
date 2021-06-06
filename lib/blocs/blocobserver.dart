@@ -4,11 +4,13 @@ import 'package:dev_libraries/contracts/logging/logservice.dart';
 import 'package:dev_libraries/models/logging/logging.dart';
 
 class DefaultBlocObserver extends BlocObserver {
-  final AnalyticsService _analyticsService;
-  final LogService _loggingService;
+  final AnalyticsService? _analyticsService;
+  final LogService? _loggingService;
 
-  DefaultBlocObserver({AnalyticsService analyticsService, LogService loggingService})
-    : _analyticsService = analyticsService, _loggingService = loggingService;
+  DefaultBlocObserver(
+      {AnalyticsService? analyticsService, LogService? loggingService})
+      : _analyticsService = analyticsService,
+        _loggingService = loggingService;
 
   // @override
   // void onEvent(Bloc bloc, Object event) {
@@ -31,8 +33,9 @@ class DefaultBlocObserver extends BlocObserver {
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
-    
-    if(!(transition.nextState is LoggableState) && !(transition.event is LoggableEvent)) return;
+
+    if (!(transition.nextState is LoggableState) &&
+        !(transition.event is LoggableEvent)) return;
 
     var event = transition.event as LoggableEvent;
     var parameters = Map<String, dynamic>();
@@ -46,9 +49,9 @@ class DefaultBlocObserver extends BlocObserver {
   }
 
   @override
-  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
-    super.onError(cubit, error, stackTrace);
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    super.onError(bloc, error, stackTrace);
 
-    _loggingService?.log(LogLevel.Error, error, error.toString());
+    _loggingService?.log(LogLevel.Error, Exception(error), error.toString());
   }
 }

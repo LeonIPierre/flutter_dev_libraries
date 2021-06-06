@@ -11,7 +11,7 @@ abstract class ConfigurationEvent {
 }
 
 class ConfigurationIntializedEvent extends ConfigurationEvent {
-  final List<String> keys;
+  final List<String>? keys;
   ConfigurationIntializedEvent({ this.keys }) : super(ConfigurationEventIds.LoadAllConfigurations);
 }
 

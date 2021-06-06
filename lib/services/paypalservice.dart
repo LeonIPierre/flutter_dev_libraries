@@ -29,7 +29,7 @@ class PayPalService extends PaymentService {
     Future.value(products);
 
   @override
-  Future<void> pay(PaymentOption paymentOption, UnmodifiableListView<Product> products) {
+  Future<void> pay(PaymentOption paymentOption, UnmodifiableListView<Product> products) async {
     _purchasesSubject.add(UnmodifiableListView(
             products.map((product) => PaymentResult(PaymentStatus.Started, 
               product: product,
