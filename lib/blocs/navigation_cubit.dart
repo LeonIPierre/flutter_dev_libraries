@@ -19,6 +19,6 @@ class NavigationCubit extends Cubit<NavigationItemModel> {
   }
 
   void dispose() {
-    _navigation?.close();
+    _navigation.close();
   }
 } 

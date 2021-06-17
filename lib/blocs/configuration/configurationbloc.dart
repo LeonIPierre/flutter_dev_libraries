@@ -7,7 +7,7 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
   Map<String, dynamic> _configuration = Map<String, dynamic>();
   List<ConfigurationRepository>? _repositories = [];
 
-  ConfigurationBloc({ List<ConfigurationRepository>? repositories })
+  ConfigurationBloc({List<ConfigurationRepository>? repositories})
       : _repositories = repositories,
         super(ConfigurationUnitializedState());
 
@@ -18,31 +18,33 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
         yield ConfigurationLoadingState();
 
         List<String>? keys = (event as ConfigurationIntializedEvent).keys;
-        
-        yield await Future.wait(_repositories!.map((e) => e.getAll(keys: keys!)))
+
+        yield await Future.wait(_repositories!.map((e) => e.getAll(keys: keys)))
             .then<ConfigurationState>((values) {
-              values.forEach((element) {
-                _configuration.addAll(element);
-              });
- 
-              return ConfigurationInitializedState(_configuration);
-            })
-            .catchError((onError) => ConfigurationErrorState(message: onError.toString()));
+          values.forEach((element) {
+            _configuration.addAll(element);
+          });
+
+          return ConfigurationInitializedState(_configuration);
+        }).catchError((onError) =>
+                ConfigurationErrorState(message: onError.toString()));
         break;
       case ConfigurationEventIds.SaveConfiguration:
         var ev = (event as ConfigurationChangedEvent);
 
-      yield await _repositories!.firstWhere((element) => element.runtimeType == ev.repository.runtimeType)
-        .save(ev.key, ev.value)
-        .then<ConfigurationState>((success) {
-            if(success) {
-              _configuration.update(ev.key, (value) => ev.value);
-              return ConfigurationInitializedState(_configuration);
-            }
+        yield await _repositories!
+            .firstWhere(
+                (element) => element.runtimeType == ev.repository.runtimeType)
+            .save(ev.key, ev.value)
+            .then<ConfigurationState>((success) {
+          if (!success)
+            return ConfigurationErrorState(
+                message: 'Failed to update ${ev.key} to ${ev.value}');
 
-            return ConfigurationErrorState(message: 'Failed to update ${ev.key} to ${ev.value}');
-          })
-        .catchError((onError) => ConfigurationErrorState(message: onError.toString()));
+          _configuration.update(ev.key, (value) => ev.value);
+          return ConfigurationInitializedState(_configuration);
+        }).catchError((onError) =>
+                ConfigurationErrorState(message: onError.toString()));
         break;
     }
   }
