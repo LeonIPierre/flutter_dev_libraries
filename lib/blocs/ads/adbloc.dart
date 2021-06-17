@@ -55,7 +55,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
         yield await _adService.loadAdAsync(event.adConfiguration!, 
           eventListener: (event, config) => _mapAdEventCallback(event, config))
           .then((configuration) => _requestAd(event.copy(configuration: configuration)))
-          .then((ad) {
+          .then<AdState>((ad) {
             ads.add(ad);
             return AdIdealState(ad);
             })
