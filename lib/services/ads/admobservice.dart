@@ -26,21 +26,23 @@ class AdMobService extends AdService {
 
   @override
   void initialize(String appId) {
-    //Admob.initialize();
+    Admob.initialize();
   }
 
   @override
-  AdConfiguration loadAd(AdConfiguration configuration, {Function(AdEventId)? eventListener}) {
-    String adUnitId = _getAdUnitId(configuration.adType);
+  AdConfiguration loadAd(AdConfiguration configuration,
+      {Function(AdEventId)? eventListener}) {
+    String adUnitId = _getAdUnitId(configuration.adType, _adUnitIds);
 
     switch (configuration.adType) {
       case AdType.Banner:
         _bannerAd = AdmobBanner(
             adUnitId: adUnitId,
-            adSize: configuration.adSize == null ? AdmobBannerSize.BANNER : _mapToAdSize(configuration.adSize!),
+            adSize: configuration.adSize == null
+                ? AdmobBannerSize.BANNER
+                : _mapToAdSize(configuration.adSize!),
             listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
-              if(eventListener != null)
-                eventListener(_mapToAdEventId(event));
+              if (eventListener != null) eventListener(_mapToAdEventId(event));
             });
         break;
       case AdType.Interstitial:
@@ -48,8 +50,7 @@ class AdMobService extends AdService {
         _interstitialAd = AdmobInterstitial(
             adUnitId: adUnitId,
             listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
-              if(eventListener != null)
-                eventListener(_mapToAdEventId(event));
+              if (eventListener != null) eventListener(_mapToAdEventId(event));
             });
         _interstitialAd.load();
         break;
@@ -57,8 +58,7 @@ class AdMobService extends AdService {
         _rewardAd = AdmobReward(
             adUnitId: adUnitId,
             listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
-              if(eventListener != null)
-                eventListener(_mapToAdEventId(event));
+              if (eventListener != null) eventListener(_mapToAdEventId(event));
             });
         _rewardAd.load();
         break;
@@ -72,46 +72,48 @@ class AdMobService extends AdService {
   @override
   Future<AdConfiguration?> loadAdAsync(AdConfiguration configuration,
       {Function(AdEventId, AdConfiguration)? eventListener}) {
-
-    String adUnitId = _getAdUnitId(configuration.adType);
+    String adUnitId = _getAdUnitId(configuration.adType, _adUnitIds);
     Completer<AdConfiguration> completer = Completer<AdConfiguration>();
 
     switch (configuration.adType) {
       case AdType.Banner:
-        return Future.value(
-           _bannerAd = AdmobBanner(
-            adUnitId: adUnitId,
-            adSize: configuration.adSize == null ? AdmobBannerSize.BANNER : _mapToAdSize(configuration.adSize!),
-            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
-              if(eventListener != null)
-                eventListener(_mapToAdEventId(event), configuration);
-            })
-        ).then((_) => configuration);
+        return Future.value(_bannerAd = AdmobBanner(
+                adUnitId: adUnitId,
+                adSize: configuration.adSize == null
+                    ? AdmobBannerSize.BANNER
+                    : _mapToAdSize(configuration.adSize!),
+                listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
+                  if (eventListener != null)
+                    eventListener(_mapToAdEventId(event), configuration);
+                }))
+            .then((_) => configuration);
       case AdType.Interstitial:
       case AdType.InterstitialVideo:
-        var ad = Future.value(
-          _interstitialAd = AdmobInterstitial(
-            adUnitId: adUnitId,
-            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
-              if(eventListener != null)
-                completer.complete(eventListener(_mapToAdEventId(event), configuration));
-          })).then((ad) {
-            ad.load();
-            return configuration;  
-          });
-        
+        var ad = Future.value(_interstitialAd = AdmobInterstitial(
+                adUnitId: adUnitId,
+                listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
+                  if (eventListener != null)
+                    completer.complete(
+                        eventListener(_mapToAdEventId(event), configuration));
+                }))
+            .then((ad) {
+          ad.load();
+          return configuration;
+        });
+
         return Future.wait([ad, completer.future]).then((value) => value.last);
       case AdType.Reward:
-        return Future.wait([Future.value(
-          _rewardAd = AdmobReward(
-            adUnitId: adUnitId,
-            listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
-              if(eventListener != null)
-                completer.complete(eventListener(_mapToAdEventId(event), configuration));
-            })
-            ).then((value) => configuration),
-            completer.future])
-            .then((value) => value.last);
+        return Future.wait([
+          Future.value(_rewardAd = AdmobReward(
+                  adUnitId: adUnitId,
+                  listener: (AdmobAdEvent event, Map<String, dynamic>? args) {
+                    if (eventListener != null)
+                      completer.complete(
+                          eventListener(_mapToAdEventId(event), configuration));
+                  }))
+              .then((value) => configuration),
+          completer.future
+        ]).then((value) => value.last);
       case AdType.Internal:
         return Future.value(configuration);
       default:
@@ -125,30 +127,30 @@ class AdMobService extends AdService {
       case AdType.Banner:
         return Ad(_bannerAd);
       case AdType.Interstitial:
-        return _showInterstitialAd();
+        return _showInterstitialAd(_interstitialAd);
       case AdType.Reward:
-        return _showRewardAd();
+        return _showRewardAd(_rewardAd);
       default:
         return throw Exception("Invalid request type: ${configuration.adType}");
     }
   }
 
-  String _getAdUnitId(AdType adType) {
+  String _getAdUnitId(AdType adType, Map<String, dynamic> adUnitIds) {
     switch (adType) {
       case AdType.Banner:
-        return _adUnitIds["googleAdMob:bannerAdUnitId"];
+        return adUnitIds["googleAdMob:bannerAdUnitId"];
       case AdType.Interstitial:
-        return _adUnitIds["googleAdMob:intersitialAdUnitId"];
+        return adUnitIds["googleAdMob:intersitialAdUnitId"];
       case AdType.InterstitialVideo:
-        return _adUnitIds["googleAdMob:intersitialVideoAdUnitId"];
+        return adUnitIds["googleAdMob:intersitialVideoAdUnitId"];
       case AdType.Native:
-        return _adUnitIds["googleAdMob:nativeAdUnitId"];
+        return adUnitIds["googleAdMob:nativeAdUnitId"];
       case AdType.NativeVideo:
-        return _adUnitIds["googleAdMob:nativeVideoAdUnitId"];
+        return adUnitIds["googleAdMob:nativeVideoAdUnitId"];
       case AdType.Reward:
-        return _adUnitIds["googleAdMob:rewardAdUnitId"];
+        return adUnitIds["googleAdMob:rewardAdUnitId"];
       case AdType.Internal:
-        return _adUnitIds["googleAdMob:internalAdUnitId"];
+        return adUnitIds["googleAdMob:internalAdUnitId"];
       default:
         throw Exception("Invalid adType: $adType");
     }
@@ -169,12 +171,10 @@ class AdMobService extends AdService {
     var min = double.maxFinite;
     var output;
 
-    for(int i = 0; i < ads.length; i++)
-    {
+    for (int i = 0; i < ads.length; i++) {
       var point = ads[i];
       var distance = Point(point.height, point.width).distanceTo(requestedSize);
-      if(distance > min)
-        continue;
+      if (distance > min) continue;
 
       min = distance;
       output = point;
@@ -182,10 +182,9 @@ class AdMobService extends AdService {
 
     return output;
   }
-  
+
   AdEventId _mapToAdEventId(AdmobAdEvent eventId) {
-    switch(eventId)
-    {
+    switch (eventId) {
       case AdmobAdEvent.closed:
         return AdEventId.AdClosed;
       case AdmobAdEvent.loaded:
@@ -207,23 +206,24 @@ class AdMobService extends AdService {
         return throw Exception("Invalid event type: $eventId");
     }
   }
-  
-  Future<Ad> _showInterstitialAd() async {
-    var isLoaded = await _interstitialAd.isLoaded;
-    if (isLoaded!) {
-      _interstitialAd.show();
-      return Ad(_interstitialAd);
-    }
 
-    return throw Exception("Unable to load $_interstitialAd");
-  }
+  Future<Ad> _showInterstitialAd(AdmobInterstitial interstitialAd) async =>
+      await interstitialAd.isLoaded.then((value) {
+        if (value!) {
+          interstitialAd.show();
+          return Ad(interstitialAd);
+        }
 
-  Future<Ad> _showRewardAd() async {
-    if (await _rewardAd.isLoaded) {
-      _rewardAd.show();
-      return Ad(_rewardAd);
-    }
+        return throw Exception("Unable to load $interstitialAd");
+      });
 
-    return throw Exception("Unable to load $_rewardAd");
-  }
+  Future<Ad> _showRewardAd(AdmobReward rewardAd) async =>
+      await rewardAd.isLoaded.then((value) {
+        if (value) {
+          rewardAd.show();
+          return Ad(rewardAd);
+        }
+
+        throw Exception("Unable to load $rewardAd");
+      });
 }
