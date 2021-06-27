@@ -9,17 +9,17 @@ import 'package:dev_libraries/models/ads/adconfiguration.dart';
 import 'package:dev_libraries/models/ads/adsize.dart';
 
 class AdMobService extends AdService {
-  late AdmobBanner _bannerAd;
+  final String configurationNamespace = "adMob";
+  late AdmobBanner? _bannerAd;
   late AdmobInterstitial _interstitialAd;
   late AdmobReward _rewardAd;
   final Map<String, dynamic> _adUnitIds;
 
-  AdMobService(String appId, this._adUnitIds) {
-    //initialize(appId);
-  }
+  AdMobService(this._adUnitIds);
 
   @override
   void dispose() {
+    _bannerAd = null;
     _interstitialAd.dispose();
     _rewardAd.dispose();
   }
@@ -125,7 +125,7 @@ class AdMobService extends AdService {
   Future<Ad> requestAd(AdConfiguration configuration) async {
     switch (configuration.adType) {
       case AdType.Banner:
-        return Ad(_bannerAd);
+        return Ad(_bannerAd!);
       case AdType.Interstitial:
         return _showInterstitialAd(_interstitialAd);
       case AdType.Reward:
@@ -136,24 +136,12 @@ class AdMobService extends AdService {
   }
 
   String _getAdUnitId(AdType adType, Map<String, dynamic> adUnitIds) {
-    switch (adType) {
-      case AdType.Banner:
-        return adUnitIds["googleAdMob:bannerAdUnitId"];
-      case AdType.Interstitial:
-        return adUnitIds["googleAdMob:intersitialAdUnitId"];
-      case AdType.InterstitialVideo:
-        return adUnitIds["googleAdMob:intersitialVideoAdUnitId"];
-      case AdType.Native:
-        return adUnitIds["googleAdMob:nativeAdUnitId"];
-      case AdType.NativeVideo:
-        return adUnitIds["googleAdMob:nativeVideoAdUnitId"];
-      case AdType.Reward:
-        return adUnitIds["googleAdMob:rewardAdUnitId"];
-      case AdType.Internal:
-        return adUnitIds["googleAdMob:internalAdUnitId"];
-      default:
-        throw Exception("Invalid adType: $adType");
-    }
+    var adUnitId = adUnitIds["$configurationNamespace:$adType"];
+
+    if(adUnitId == null)
+      throw Exception("Could not find ad Unit Id: $configurationNamespace:$adType");
+
+    return adUnitId;
   }
 
   /// maps the requested ad size to the closest ad mob banner size
@@ -209,21 +197,17 @@ class AdMobService extends AdService {
 
   Future<Ad> _showInterstitialAd(AdmobInterstitial interstitialAd) async =>
       await interstitialAd.isLoaded.then((value) {
-        if (value!) {
-          interstitialAd.show();
-          return Ad(interstitialAd);
-        }
+        if (!value!) throw Exception("Unable to load $interstitialAd");
 
-        return throw Exception("Unable to load $interstitialAd");
+        interstitialAd.show();
+        return Ad(interstitialAd);
       });
 
   Future<Ad> _showRewardAd(AdmobReward rewardAd) async =>
       await rewardAd.isLoaded.then((value) {
-        if (value) {
-          rewardAd.show();
-          return Ad(rewardAd);
-        }
+        if (!value) throw Exception("Unable to load $rewardAd");
 
-        throw Exception("Unable to load $rewardAd");
+        rewardAd.show();
+        return Ad(rewardAd);
       });
 }
