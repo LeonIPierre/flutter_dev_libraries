@@ -5,7 +5,6 @@ import 'package:dev_libraries/contracts/authentication/userservice.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
-import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
 
 part 'events.dart';
@@ -17,8 +16,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   late StreamSubscription<User> _userSubscription;
   
   AuthenticationBloc(AuthenticationService authenticationService,
-    UserService userService)  : assert(authenticationService != null),
-        assert(userService != null),
+    UserService userService)  : 
         _authenticationService = authenticationService,
         _userService = userService,
         super(const AuthenticationState.unknown()) {
