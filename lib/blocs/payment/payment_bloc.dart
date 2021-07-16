@@ -74,7 +74,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
         yield PaymentLoadingState();
 
-        _paymentSubscription = paymentEvent.paymentService.purchases.listen((event) async {
+        _paymentSubscription = paymentEvent.paymentService.purchases.listen((event) {
           //payments are handled in this order
           // start payment
           // complete payment
