@@ -4,6 +4,7 @@ export 'models/node.dart';
 export 'blocs/blocobserver.dart';
 
 export 'models/logging/logging.dart';
+export 'repositories/repositorybase.dart';
 export 'blocs/configuration/configuration.dart';
 export 'blocs/authentication/authenticationbloc.dart';
 export 'blocs/login/login_cubit.dart';
