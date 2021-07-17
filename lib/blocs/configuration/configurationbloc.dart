@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/blocs/configuration/events.dart';
 import 'package:dev_libraries/blocs/configuration/states.dart';
 import 'package:dev_libraries/contracts/configurationrepository.dart';
+import 'package:flutter/cupertino.dart';
 
 class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
   Map<String, dynamic> _configuration = Map<String, dynamic>();
@@ -20,13 +21,8 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
         List<String>? keys = (event as ConfigurationIntializedEvent).keys;
 
         yield await Future.wait(_repositories!.map((e) => e.getAll(keys: keys)))
-            .then<ConfigurationState>((values) {
-          values.forEach((element) {
-            _configuration.addAll(element);
-          });
-
-          return ConfigurationInitializedState(_configuration);
-        }).catchError((onError) =>
+            .then<ConfigurationState>((values) => mapToLoadConfigurationState(values))
+            .catchError((onError) =>
                 ConfigurationErrorState(message: onError.toString()));
         break;
       case ConfigurationEventIds.SaveConfiguration:
@@ -41,11 +37,28 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
             return ConfigurationErrorState(
                 message: 'Failed to update ${ev.key} to ${ev.value}');
 
-          _configuration.update(ev.key, (value) => ev.value);
-          return ConfigurationInitializedState(_configuration);
+          return mapToSaveConfigurationState(ev, _configuration);
         }).catchError((onError) =>
                 ConfigurationErrorState(message: onError.toString()));
         break;
     }
+  }
+
+  Future<ConfigurationState> mapToLoadConfigurationState(
+      List<Map<String, dynamic>> configuration) async => Future(() {
+      Map<String, dynamic> config = Map<String, dynamic>();
+
+      configuration.forEach((element) {
+        config.addAll(element);
+      });
+
+      return ConfigurationInitializedState(config);
+    });
+
+  ConfigurationState mapToSaveConfigurationState(
+      ConfigurationChangedEvent event, Map<String, dynamic> configuration) {
+    configuration.update(event.key, (value) => event.value);
+
+    return ConfigurationInitializedState(configuration);
   }
 }
