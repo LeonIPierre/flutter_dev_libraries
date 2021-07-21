@@ -15,8 +15,7 @@ class AssetBundleRepository extends ConfigurationRepository {
       _bundle = bundle ?? rootBundle;
 
   Future<Map<String, dynamic>> getAll({ List<String>? keys }) async => io.File(_configFilePath).exists()
-      .then((exists) => exists ? true : throw Exception("File not found $_configFilePath"))
-      .then((value) => _bundle.loadString(_configFilePath))
+      .then((exists) => exists ? _bundle.loadString(_configFilePath) : throw Exception("File not found $_configFilePath"))
       .then((content) => flatten(json.decode(content), delimiter: _delimiter));
   
   Future<bool> save<T>(String key, T value) async => throw Exception("Not implemented");

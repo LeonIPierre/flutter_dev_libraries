@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/blocs/configuration/events.dart';
 import 'package:dev_libraries/blocs/configuration/states.dart';
 import 'package:dev_libraries/contracts/configurationrepository.dart';
-import 'package:flutter/cupertino.dart';
 
 class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
   Map<String, dynamic> _configuration = Map<String, dynamic>();

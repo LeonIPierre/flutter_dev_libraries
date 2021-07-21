@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 abstract class RepositoryBase<T, U> {
+  
   Future<UnmodifiableListView<T>> getAll();
 
   Future<U> get(String id);
