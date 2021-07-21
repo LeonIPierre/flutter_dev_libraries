@@ -1,3 +1,3 @@
-abstract class LoggableState {
+mixin LoggableState {
   Map<String, dynamic> toLogState();
 }

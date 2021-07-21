@@ -12,40 +12,19 @@ class DefaultBlocObserver extends BlocObserver {
       : _analyticsService = analyticsService,
         _loggingService = loggingService;
 
-  // @override
-  // void onEvent(Bloc bloc, Object event) {
-  //   super.onEvent(bloc, event);
-
-  //   if(!(event is LoggableEvent)) return;
-
-  //   var loggedEvent = event as LoggableEvent;
-
-  //   var parameters = Map<String, dynamic>();
-  //   //need a uniqiue id to map to a "user session"
-  //   parameters.putIfAbsent("event", () => loggedEvent.toString());
-
-  //   //convert the state logs to a generic log to pass to service
-  //   parameters.addAll(loggedEvent.toLogState());
-
-  //   _analyticsService?.send(event.toString(), parameters);
-  // }
-
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
 
-    if (!(transition.nextState is LoggableState) &&
-        !(transition.event is LoggableEvent)) return;
+    if (transition.nextState is! LoggableState || transition.event is! LoggableEvent) return;
 
-    var event = transition.event as LoggableEvent;
-    var parameters = Map<String, dynamic>();
     //need a uniqiue id to map to a "user session"
-    parameters.putIfAbsent("event", () => transition.event.toString());
-
     //convert the state logs to a generic log to pass to service
-    parameters.addAll(event.toLogState());
-
-    _analyticsService?.send(transition.event.toString(), parameters);
+    var event = transition.event as LoggableEvent;
+    var state = transition.nextState as LoggableState;
+    var parameters = event.toLogState()..addAll(state.toLogState());
+    
+    _analyticsService?.send(event.name, parameters);
   }
 
   @override
