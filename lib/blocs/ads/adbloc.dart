@@ -5,7 +5,6 @@ import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/contracts/ads/adservice.dart';
 import 'package:dev_libraries/models/ads/ads.dart';
 import 'package:dev_libraries/models/node.dart';
-//import 'package:dev_libraries/services/ads/admobservice.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -42,10 +41,8 @@ class AdBloc extends Bloc<AdEvent, AdState> {
 
   double _maxValue = 0;
 
-  AdBloc(this._adService, { Map<String, dynamic>? configuration, this.adIntervalSeconds = 30}) : super(AdLoadingState()) {
-    //Map<String, dynamic> adUnitIds = Map.from(configuration!)..removeWhere((k, v) => !k.contains("AdUnitId"));
-    //this._adService = adService ?? AdMobService(appId, adUnitIds); 
-  }
+  AdBloc(this._adService, { Map<String, dynamic>? configuration, this.adIntervalSeconds = 30}) 
+  : super(AdLoadingState());
 
   @override
   Stream<AdState> mapEventToState(AdEvent event) async* {  
@@ -145,7 +142,7 @@ class AdBloc extends Bloc<AdEvent, AdState> {
         })
         .distinct()
         .throttle((event) => TimerStream(true, Duration(milliseconds: 300)), trailing: true)
-        .asyncMap((value) async => await _createAdEvent(_adHistoryStream.values.last ?? event, value.round()))
+        .asyncMap((value) async => await _createAdEvent(_adHistoryStream.values.last, value.round()))
         .where((adRequest) => _isAdRequestValid(adRequest))
         .listen((event) { add(event); });
         
