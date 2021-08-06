@@ -9,7 +9,7 @@ export 'blocs/configuration/configuration.dart';
 export 'blocs/authentication/authenticationbloc.dart';
 export 'blocs/login/login_cubit.dart';
 export 'blocs/payment/payment_bloc.dart';
-export 'blocs/ads/adbloc.dart';
+//export 'blocs/ads/adbloc.dart';
 
 //vendor services
 //export 'services/analytics/facebookappeventservice.dart';
