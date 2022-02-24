@@ -4,7 +4,7 @@ abstract class RepositoryBase<T, U> {
   
   Future<U> add(T entity);
 
-  Future<U> addAll(Iterable<T> entiites);
+  Future<U> addAll(Iterable<T> entities);
 
   Future<U> delete(T entity);
 

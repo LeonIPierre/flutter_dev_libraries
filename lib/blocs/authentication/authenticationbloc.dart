@@ -5,7 +5,6 @@ import 'package:dev_libraries/contracts/authentication/userservice.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dev_libraries/models/authentication/user.dart';
-import 'package:pedantic/pedantic.dart';
 
 part 'events.dart';
 part 'states.dart';
