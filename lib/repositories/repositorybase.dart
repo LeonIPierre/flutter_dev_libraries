@@ -1,14 +1,19 @@
-import 'dart:collection';
 
 abstract class RepositoryBase<T, U> {
+  String get tableName;
   
-  Future<UnmodifiableListView<T>> getAll();
+  Future<Iterable<T>> getAll();
 
   Future<T> get(String id);
 
-  Future<U> add(T item);
+  Future<U> add(T entity);
 
-  Future<U> update(T item);
+  Future<U> addAll(Iterable<T> entiites);
 
-  Future<U> delete(T item);
+  Future<U> update(T entity);
+
+  Future<U> delete(T entity);
+
+  // ignore: unused_element
+  Map<String, Object?> _toMap(T item);
 }
