@@ -1,17 +1,13 @@
 import 'package:dev_libraries/dev_libraries.dart';
 import 'package:sqflite/sqflite.dart';
 
-typedef EntityFromMapCreator<T> = T Function(Map<String, Object?> map);
-
-typedef EntityToMapCreator<T> = Map<String, Object?> Function(T entity);
-
 abstract class SqlDbContext<T extends PrimaryKeyIdentifier>
     extends RepositoryContext<T, int> {
   final Database database;
 
-  final EntityToMapCreator<T> entityToMapCreator;
+  final T Function(Map<String, Object?> map) entityFromMapCreator;
 
-  final EntityFromMapCreator<T> entityFromMapCreator;
+  final Map<String, Object?> Function(T entity) entityToMapCreator;
 
   SqlDbContext(
       this.database, this.entityFromMapCreator, this.entityToMapCreator);
