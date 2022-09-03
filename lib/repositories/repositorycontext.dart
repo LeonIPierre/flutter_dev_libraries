@@ -1,5 +1,5 @@
 
-abstract class RepositoryBase<T, U> {
+abstract class RepositoryContext<T extends PrimaryKeyIdentifier, U> {
   String get tableName;
   
   Future<U> add(T entity);
@@ -10,9 +10,11 @@ abstract class RepositoryBase<T, U> {
 
   Future<T> get(String id);
 
-  Future<Iterable<T>> getAll();
+  Future<Iterable<T>> getAll(Iterable<T> entities);
 
   Future<U> update(T entity);
+}
 
-  Map<String, Object?> toMap(T entity);
+abstract class PrimaryKeyIdentifier {
+  String get id;
 }
