@@ -9,9 +9,9 @@ abstract class SqlDbContext<T extends PrimaryKeyIdentifier>
     extends RepositoryContext<T, int> {
   final Database _database;
 
-  final EntityToMapCreator _entityToMapCreator;
+  final EntityToMapCreator<T> _entityToMapCreator;
 
-  final EntityFromMapCreator _entityFromMapCreator;
+  final EntityFromMapCreator<T> _entityFromMapCreator;
 
   SqlDbContext(
       this._database, this._entityFromMapCreator, this._entityToMapCreator);
