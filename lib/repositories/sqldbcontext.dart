@@ -1,7 +1,7 @@
 import 'package:dev_libraries/dev_libraries.dart';
 import 'package:sqflite/sqflite.dart';
 
-abstract class SqlDbContext<T extends PrimaryKeyIdentifier>
+abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
     extends RepositoryContext<T, int> {
   final Database database;
 
@@ -9,7 +9,7 @@ abstract class SqlDbContext<T extends PrimaryKeyIdentifier>
 
   final Map<String, Object?> Function(T entity) entityToMapCreator;
 
-  SqlDbContext(
+  SqlRepositoryContext(
       this.database, this.entityFromMapCreator, this.entityToMapCreator);
 
   @override
