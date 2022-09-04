@@ -22,14 +22,14 @@ abstract class SqlDatabaseContext extends DatabaseContext {
 
   Future<void> dropDatabase() async =>
       _getDatabasePath().then((path) => deleteDatabase(path));
-      
+
   Future<String> _getDatabasePath() async => getDatabasesPath()
       .then((path) => databasePath = join(path, databaseName));
 
   Future<Database> _initDatabaseInstance() async {
     if (_database != null) return _database!;
 
-    return _getDatabasePath()
-        .then((path) => openDatabase(path, onCreate: onDatabaseCreated, version: version));
+    return _getDatabasePath().then((path) =>
+        openDatabase(path, onCreate: onDatabaseCreated, version: version));
   }
 }
