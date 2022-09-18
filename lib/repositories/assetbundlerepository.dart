@@ -9,14 +9,18 @@ class AssetBundleRepository extends ConfigurationRepository {
   final String _configFilePath;
   final String _delimiter;
 
-  AssetBundleRepository({AssetBundle? bundle, String? configFilePath, String? delimiter}) :
-      _configFilePath = configFilePath ?? "assets/config.json",
-      _delimiter = delimiter ?? ":",
-      _bundle = bundle ?? rootBundle;
+  AssetBundleRepository(
+      {AssetBundle? bundle,
+      String configFilePath = "assets/config.json",
+      String delimiter = ":"})
+      : _configFilePath = configFilePath,
+        _delimiter = delimiter,
+        _bundle = bundle ?? rootBundle;
 
   Future<Map<String, dynamic>> getAll({ List<String>? keys }) async => io.File(_configFilePath).exists()
       .then((exists) => exists ? _bundle.loadString(_configFilePath) : throw Exception("File not found $_configFilePath"))
       .then((content) => flatten(json.decode(content), delimiter: _delimiter));
-  
-  Future<bool> save<T>(String key, T value) async => throw Exception("Not implemented");
+
+  Future<bool> save<T>(String key, T value) async =>
+      throw Exception("Not implemented");
 }
