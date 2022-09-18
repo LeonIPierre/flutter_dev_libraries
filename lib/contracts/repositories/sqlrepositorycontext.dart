@@ -52,3 +52,20 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
       database.update(tableName, entityToMapCreator(entity),
           where: 'id = ?', whereArgs: [entity.id]);
 }
+
+extension SqlDbContextMapExtensions on Map<String, dynamic> {
+  Map<String, dynamic> convertToDateTime(String key) {
+    if (this[key] != null)
+      this.update(
+          key,
+          (value) => DateTime.fromMicrosecondsSinceEpoch(
+              int.parse(value!.toString())));
+
+    return this;
+  }
+}
+
+extension SqlDbContextExtensions on MapEntry<String, dynamic> {
+  DateTime toDateTime() =>
+      DateTime.fromMicrosecondsSinceEpoch(int.parse(value!.toString()));
+}

@@ -9,12 +9,10 @@ abstract class SqlDatabaseContext extends DatabaseContext {
 
   Database Function(Database db) get onDatabaseInitialized;
 
-  Future<void> initialize() async {
-    databasePath =
-        await getDatabasesPath().then((path) => join(path, databaseName));
-
-    _database = await _initDatabaseInstance().then(onDatabaseInitialized);
-  }
+  Future<void> initialize() async =>
+      await _getDatabasePath().then((value) async {
+        _database = await _initDatabaseInstance().then(onDatabaseInitialized);
+      });
 
   Future<void> dispose() => _initDatabaseInstance()
       .then((db) => db.close())
@@ -23,8 +21,14 @@ abstract class SqlDatabaseContext extends DatabaseContext {
   Future<void> dropDatabase() async =>
       _getDatabasePath().then((path) => deleteDatabase(path));
 
-  Future<String> _getDatabasePath() async => getDatabasesPath()
-      .then((path) => databasePath = join(path, databaseName));
+  Future<String> _getDatabasePath() async {
+    if (databasePath.isNotEmpty) return databasePath;
+
+    databasePath = await getDatabasesPath()
+        .then((path) => databasePath = join(path, "$databaseName.db"));
+
+    return databasePath;
+  }
 
   Future<Database> _initDatabaseInstance() async {
     if (_database != null) return _database!;
