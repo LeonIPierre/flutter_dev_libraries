@@ -22,12 +22,12 @@ abstract class SqlDatabaseContext extends DatabaseContext {
       _getDatabasePath().then((path) => deleteDatabase(path));
 
   Future<String> _getDatabasePath() async {
-    if (databasePath.isNotEmpty) return databasePath;
+    if (databasePath != null && databasePath!.isNotEmpty) return databasePath!;
 
     databasePath = await getDatabasesPath()
         .then((path) => databasePath = join(path, "$databaseName.db"));
 
-    return databasePath;
+    return databasePath!;
   }
 
   Future<Database> _initDatabaseInstance() async {
