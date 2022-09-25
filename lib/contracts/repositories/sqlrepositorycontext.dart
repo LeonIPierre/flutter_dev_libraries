@@ -35,7 +35,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
   @override
   Future<T> get(String id) => database.query(tableName,
       where: 'id = ?',
-      whereArgs: [id]).then((result) => entityFromMapCreator(result.first));
+      whereArgs: [id]).then((result) => entityFromMapCreator(result.single));
 
   @override
   Future<Iterable<T>> getAll({Iterable<T>? entities}) {
