@@ -10,7 +10,7 @@ abstract class RepositoryContext<T extends PrimaryKeyIdentifier, U> {
 
   Future<T> get(String id);
 
-  Future<Iterable<T>> getAll(Iterable<T> entities);
+  Future<Iterable<T>> getAll({Iterable<T> entities});
 
   Future<U> update(T entity);
 }

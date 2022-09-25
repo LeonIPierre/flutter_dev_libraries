@@ -38,7 +38,12 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
       whereArgs: [id]).then((result) => entityFromMapCreator(result.first));
 
   @override
-  Future<Iterable<T>> getAll(Iterable<T> entities) {
+  Future<Iterable<T>> getAll({Iterable<T>? entities}) {
+    if (entities == null)
+      return database
+          .query(tableName)
+          .then((results) => results.map((e) => entityFromMapCreator(e)));
+
     var entityIds = entities.map((e) => e.id);
     return database.query(tableName,
         where: 'id IN (${entityIds.join(',')})',
