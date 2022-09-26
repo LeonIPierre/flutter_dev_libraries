@@ -1,8 +1,9 @@
 abstract class DatabaseContext {
   String get databaseName;
-  late int version;
-
   String? databasePath;
+  int version;
+
+  DatabaseContext(this.version);
 
   Future<void> initialize();
 

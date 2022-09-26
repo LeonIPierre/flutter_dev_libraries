@@ -9,6 +9,8 @@ abstract class SqlDatabaseContext extends DatabaseContext {
 
   Database Function(Database db) get onDatabaseInitialized;
 
+  SqlDatabaseContext(int version) : super(version);
+
   Future<void> initialize() async =>
       await _getDatabasePath().then((value) async {
         _database = await _initDatabaseInstance().then(onDatabaseInitialized);
