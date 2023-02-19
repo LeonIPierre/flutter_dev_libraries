@@ -1,4 +1,4 @@
-import 'package:dev_libraries/contracts/configurationrepository.dart';
+import 'package:dev_libraries/contracts/infastructure/configurationrepository.dart';
 import 'package:flat/flat.dart';
 import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 import 'dart:convert';

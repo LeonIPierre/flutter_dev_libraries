@@ -1,4 +1,4 @@
-import 'package:dev_libraries/contracts/databasecontext.dart';
+import 'package:dev_libraries/contracts/infastructure/databasecontext.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 

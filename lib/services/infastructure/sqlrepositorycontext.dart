@@ -1,4 +1,5 @@
-import 'package:dev_libraries/dev_libraries.dart';
+
+import 'package:dev_libraries/contracts/infastructure/repositorycontext.dart';
 import 'package:sqflite/sqflite.dart';
 
 abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
