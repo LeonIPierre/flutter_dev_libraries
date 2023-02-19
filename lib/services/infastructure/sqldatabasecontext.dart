@@ -3,7 +3,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 abstract class SqlDatabaseContext extends DatabaseContext {
-  Database? _database;
+  late Database? _database;
+
+  Database get database => _database!;
 
   void Function(Database db, int version) get onDatabaseCreated;
 

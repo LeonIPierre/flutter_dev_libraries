@@ -1,25 +1,26 @@
 
 import 'package:dev_libraries/contracts/infastructure/repositorycontext.dart';
+import 'package:dev_libraries/services/infastructure/sqldatabasecontext.dart';
 import 'package:sqflite/sqflite.dart';
 
 abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
     extends RepositoryContext<T, int> {
-  final Database database;
+  final SqlDatabaseContext databaseContext;
 
   final T Function(Map<String, Object?> map) entityFromMapCreator;
 
   final Map<String, Object?> Function(T entity) entityToMapCreator;
 
   SqlRepositoryContext(
-      this.database, this.entityFromMapCreator, this.entityToMapCreator);
+      this.databaseContext, this.entityFromMapCreator, this.entityToMapCreator);
 
   @override
   Future<int> add(T entity) =>
-      database.insert(tableName, entityToMapCreator(entity));
+      databaseContext.database.insert(tableName, entityToMapCreator(entity));
 
   @override
   Future<int> addAll(Iterable<T> entities) =>
-      database.transaction((transaction) async {
+      databaseContext.database.transaction((transaction) async {
         final Batch batch = transaction.batch();
 
         for (final entity in entities) {
@@ -31,23 +32,23 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
 
   @override
   Future<int> delete(T entity) =>
-      database.delete(tableName, where: 'id = ?', whereArgs: [entity.id]);
+      databaseContext.database.delete(tableName, where: 'id = ?', whereArgs: [entity.id]);
 
   @override
-  Future<T> get(String id) => database.query(tableName,
+  Future<T> get(String id) => databaseContext.database.query(tableName,
       where: 'id = ?',
       whereArgs: [id]).then((result) => entityFromMapCreator(result.single));
 
   @override
   Future<Iterable<T>> getAll({Iterable<T>? entities}) {
     if (entities == null)
-      return database
+      return databaseContext.database
           .query(tableName)
           .then((results) => results.map((e) => entityFromMapCreator(e)));
 
     var entityIds = entities.map((e) => e.id);
-    return database.query(tableName,
-        where: 'id IN (${entityIds.join(',')})',
+    return databaseContext.database.query(tableName,
+        where: 'id IN (${entityIds.map((e) => '?').join(',')})',
         whereArgs: [
           entityIds
         ]).then((result) => result.map((e) => entityFromMapCreator(e)));
@@ -55,7 +56,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
 
   @override
   Future<int> update(T entity) =>
-      database.update(tableName, entityToMapCreator(entity),
+      databaseContext.database.update(tableName, entityToMapCreator(entity),
           where: 'id = ?', whereArgs: [entity.id]);
 }
 
