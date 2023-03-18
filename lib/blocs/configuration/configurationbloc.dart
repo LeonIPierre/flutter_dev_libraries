@@ -9,50 +9,45 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
 
   ConfigurationBloc({List<ConfigurationRepository>? repositories})
       : _repositories = repositories,
-        super(ConfigurationUnitializedState());
+        super(ConfigurationUnitializedState()) {
+    on<ConfigurationIntializedEvent>((event, emit) async {
+      emit(ConfigurationLoadingState());
 
-  @override
-  Stream<ConfigurationState> mapEventToState(ConfigurationEvent event) async* {
-    switch (event.id) {
-      case ConfigurationEventIds.LoadAllConfigurations:
-        yield ConfigurationLoadingState();
+      emit(await Future.wait(
+              _repositories!.map((e) => e.getAll(keys: event.keys)))
+          .then<ConfigurationState>(
+              (values) => mapToLoadConfigurationState(values))
+          .catchError((onError) =>
+              ConfigurationErrorState(message: onError.toString())));
+    });
 
-        List<String>? keys = (event as ConfigurationIntializedEvent).keys;
-
-        yield await Future.wait(_repositories!.map((e) => e.getAll(keys: keys)))
-            .then<ConfigurationState>((values) => mapToLoadConfigurationState(values))
-            .catchError((onError) =>
-                ConfigurationErrorState(message: onError.toString()));
-        break;
-      case ConfigurationEventIds.SaveConfiguration:
-        var ev = (event as ConfigurationChangedEvent);
-
-        yield await _repositories!
-            .firstWhere(
-                (element) => element.runtimeType == ev.repository.runtimeType)
-            .save(ev.key, ev.value)
-            .then<ConfigurationState>((success) {
-          if (!success)
-            return ConfigurationErrorState(
-                message: 'Failed to update ${ev.key} to ${ev.value}');
-
-          return mapToSaveConfigurationState(ev, _configuration);
-        }).catchError((onError) =>
-                ConfigurationErrorState(message: onError.toString()));
-        break;
-    }
+    on<ConfigurationChangedEvent>((event, emit) async {
+      emit(await _repositories!
+          .firstWhere(
+              (element) => element.runtimeType == event.repository.runtimeType)
+          .save(event.key, event.value)
+          .then<ConfigurationState>((success) {
+        if (!success)
+          return ConfigurationErrorState(
+              message: 'Failed to update ${event.key} to ${event.value}');
+              
+        return mapToSaveConfigurationState(event, _configuration);
+      }).catchError((onError) =>
+              ConfigurationErrorState(message: onError.toString())));
+    });
   }
 
   Future<ConfigurationState> mapToLoadConfigurationState(
-      List<Map<String, dynamic>> configuration) async => Future(() {
-      Map<String, dynamic> config = Map<String, dynamic>();
+          List<Map<String, dynamic>> configuration) async =>
+      Future(() {
+        Map<String, dynamic> config = Map<String, dynamic>();
 
-      configuration.forEach((element) {
-        config.addAll(element);
+        configuration.forEach((element) {
+          config.addAll(element);
+        });
+
+        return ConfigurationInitializedState(config);
       });
-
-      return ConfigurationInitializedState(config);
-    });
 
   ConfigurationState mapToSaveConfigurationState(
       ConfigurationChangedEvent event, Map<String, dynamic> configuration) {

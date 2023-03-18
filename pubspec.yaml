@@ -12,8 +12,8 @@ dependencies:
     sdk: flutter
   
   #frameworks
-  bloc: ^7.0.0
-  flutter_bloc: ^7.0.1
+  bloc: ^8.1.1
+  flutter_bloc: ^8.1.2
 
   #services
   firebase_core: ^1.2.1
@@ -39,7 +39,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   test: ^1.16.0
-  bloc_test: ^8.0.0
+  bloc_test: ^9.1.1
   mockito: ^5.0.9
 
 # For information on the generic Dart part of this file, see the

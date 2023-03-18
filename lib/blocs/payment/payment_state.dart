@@ -1,7 +1,7 @@
 part of 'payment_bloc.dart';
 
 abstract class PaymentState extends Equatable {
-  final UnmodifiableListView<PaymentResult>? products;
+  final Iterable<PaymentResult>? products;
 
   PaymentState(this.products);
 
@@ -10,10 +10,10 @@ abstract class PaymentState extends Equatable {
 }
 
 class PaymentIdealState extends PaymentState {
-  final UnmodifiableListView<PaymentOption> paymentOptions;
+  final Iterable<PaymentOption> paymentOptions;
 
   PaymentIdealState(this.paymentOptions,
-      {UnmodifiableListView<PaymentResult>? products})
+      {Iterable<PaymentResult>? products})
       : super(products);
 
   @override
@@ -21,7 +21,7 @@ class PaymentIdealState extends PaymentState {
 }
 
 class PaymentCompletedState extends PaymentState {
-  PaymentCompletedState(UnmodifiableListView<PaymentResult> results)
+  PaymentCompletedState(Iterable<PaymentResult> results)
       : super(results);
 
   @override
@@ -29,7 +29,7 @@ class PaymentCompletedState extends PaymentState {
 }
 
 class PaymentEmptyState extends PaymentState {
-  PaymentEmptyState({UnmodifiableListView<PaymentResult>? products})
+  PaymentEmptyState({Iterable<PaymentResult>? products})
       : super(products);
 }
 
@@ -37,7 +37,7 @@ class PaymentErrorState extends PaymentState {
   final String? message;
 
   PaymentErrorState({this.message,
-      UnmodifiableListView<PaymentResult>? products})
+      Iterable<PaymentResult>? products})
       : super(products);
 
   @override
@@ -48,7 +48,7 @@ class PaymentLoadingState extends PaymentState {
   final int? progress;
 
   PaymentLoadingState({this.progress,
-      UnmodifiableListView<PaymentResult>? products})
+      Iterable<PaymentResult>? products})
       : super(products);
 
   @override

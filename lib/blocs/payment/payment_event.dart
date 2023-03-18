@@ -25,8 +25,8 @@ class PaymentEvent extends Equatable {
 
 class PaymentLoadEvent extends PaymentEvent {
   final PaymentService paymentService;
-  final UnmodifiableListView<Product> products;
-  final UnmodifiableListView<PaymentOption>? paymentOptions;
+  final Iterable<Product> products;
+  final Iterable<PaymentOption>? paymentOptions;
 
   PaymentLoadEvent(this.paymentService, this.products, { this.paymentOptions }) 
   : super(PaymentEventIds.LoadPaymentOptions);
@@ -35,14 +35,14 @@ class PaymentLoadEvent extends PaymentEvent {
   List<Object?> get props => [products, paymentOptions];
 }
 
-class PaymentProcessEvent extends PaymentEvent {
+class PaymentProcessStartedEvent extends PaymentEvent {
   final PaymentService paymentService;
   final ItemDelivery? itemDeliveryHandler;
   final VerifyPurchase? verifyPurchaseHandler;
   final PaymentOption option;
-  final UnmodifiableListView<Product> products;
+  final Iterable<Product> products;
 
-  const PaymentProcessEvent(PaymentEventIds id, this.paymentService, this.option, 
+  const PaymentProcessStartedEvent(PaymentEventIds id, this.paymentService, this.option, 
      this.products, { this.itemDeliveryHandler, this.verifyPurchaseHandler })
     : super(id);
 
@@ -50,14 +50,19 @@ class PaymentProcessEvent extends PaymentEvent {
   List<Object?> get props => [id, option, products];
 }
 
-class PaymentCompletedEvent extends PaymentProcessEvent {
-  final UnmodifiableListView<PaymentResult>? paymentResults;
+class PaymentStreamEvent extends PaymentProcessStartedEvent {
+  PaymentStreamEvent(PaymentService paymentService, PaymentOption option, Iterable<Product> products) 
+  : super(PaymentEventIds.StartPaymentStream, paymentService, option, products);
+}
+
+class PaymentCompletedEvent extends PaymentProcessStartedEvent {
+  final Iterable<PaymentResult>? paymentResults;
 
   PaymentCompletedEvent(PaymentService paymentService, 
     PaymentOption option, ItemDelivery itemDeliveryHandler, 
     VerifyPurchase verifyPurchaseHandler, this.paymentResults) 
     : super(PaymentEventIds.PaymentCompleted, paymentService, option, 
-      UnmodifiableListView(paymentResults!.map((p) => p.product!).toList()),
+      paymentResults!.map((p) => p.product!).toList(),
       itemDeliveryHandler: itemDeliveryHandler,
       verifyPurchaseHandler: verifyPurchaseHandler);
 
@@ -66,7 +71,7 @@ class PaymentCompletedEvent extends PaymentProcessEvent {
 }
 
 class PaymentResultEvent extends PaymentEvent {
-  final UnmodifiableListView<PaymentResult> paymentResults;
+  final Iterable<PaymentResult> paymentResults;
 
   const PaymentResultEvent(PaymentEventIds id, this.paymentResults)
     : super(id);

@@ -9,39 +9,39 @@ import 'package:dev_libraries/models/authentication/user.dart';
 part 'events.dart';
 part 'states.dart';
 
-class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
+class AuthenticationBloc
+    extends Bloc<AuthenticationEvent, AuthenticationState> {
   final AuthenticationService _authenticationService;
   final UserService _userService;
   late StreamSubscription<User> _userSubscription;
-  
-  AuthenticationBloc(AuthenticationService authenticationService,
-    UserService userService)  : 
-        _authenticationService = authenticationService,
+
+  AuthenticationBloc(
+      AuthenticationService authenticationService, UserService userService)
+      : _authenticationService = authenticationService,
         _userService = userService,
         super(const AuthenticationState.unknown()) {
-  
-    _userSubscription = _authenticationService.user.listen(
-      (user) => add(AuthenticationUserChanged(user)),
-    );
-  }
 
-  @override
-  Stream<AuthenticationState> mapEventToState(
-    AuthenticationEvent event,
-  ) async* {
-    if (event is AuthenticationUserChanged) {
-      yield _mapAuthenticationUserChangedToState(event);
-    } 
-    else if(event is CreateNewUserEvent) {
-      yield await _userService.create()
-        .then((user) => _authenticationService
-          .loginWithToken(user.accesToken!)
-          .then((_) => user))
-        .then((user) => AuthenticationState.anonymous(user));
-    }
-    else if (event is AuthenticationLogoutRequested) {
+    on<AuthenticationUserChangedEvent>((event, emit) async {
+      await emit.forEach(
+        _authenticationService.user,
+        onData: (User user) => _mapAuthenticationUserToState(user),
+      );
+    });
+
+    on<CreateNewUserEvent>((event, emit) async {
+      emit(await _userService
+          .create()
+          .then((user) => _authenticationService
+              .loginWithToken(user.accesToken!)
+              .then((_) => user))
+          .then((user) => AuthenticationState.anonymous(user)));
+    });
+
+    on<AuthenticationLogoutRequestedEvent>((event, emit) {
       unawaited(_authenticationService.logOut());
-    }
+
+      emit(LoggedOutState.unknown());
+    });
   }
 
   @override
@@ -50,9 +50,10 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     return super.close();
   }
 
-  AuthenticationState _mapAuthenticationUserChangedToState(
-    AuthenticationUserChanged event,
-  ) => event.user != User.empty
-        ? AuthenticationState.authenticated(event.user)
-        : const AuthenticationState.unauthenticated();
+  AuthenticationState _mapAuthenticationUserToState(
+    User user,
+  ) =>
+      user != User.empty
+          ? AuthenticationState.authenticated(user)
+          : const AuthenticationState.unauthenticated();
 }

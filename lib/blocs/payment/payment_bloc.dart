@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:io' show Platform;
 
 import 'package:bloc/bloc.dart';
@@ -12,111 +11,70 @@ part 'payment_event.dart';
 part 'payment_state.dart';
 
 typedef ItemDelivery = Future<bool> Function(
-    UnmodifiableListView<PaymentResult> products);
+    Iterable<PaymentResult> products);
 
-typedef VerifyPurchase = Future<UnmodifiableListView<PaymentResult>> Function(
-    UnmodifiableListView<PaymentResult> products);
+typedef VerifyPurchase = Future<Iterable<PaymentResult>> Function(
+    Iterable<PaymentResult> products);
 
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
-  late UnmodifiableListView<PaymentOption> _paymentOptions;
-  late StreamSubscription _paymentSubscription;
+  late Iterable<PaymentOption> _paymentOptions;
 
-  PaymentBloc() : super(PaymentEmptyState());
+  PaymentBloc() : super(PaymentEmptyState()) {
+    
+    on<PaymentLoadEvent>((event, emit) async {
+      emit(PaymentLoadingState());
 
-  @override
-  Stream<PaymentState> mapEventToState(PaymentEvent event) async* {
-    switch (event.id) {
-      case PaymentEventIds.LoadPaymentOptions:
-        var paymentEvent = event as PaymentLoadEvent;
+      _paymentOptions = event.paymentOptions ?? _loadPaymentOptions();
 
-        yield PaymentLoadingState();
-
-        _paymentOptions = paymentEvent.paymentOptions ?? _loadPaymentOptions();
-
-        yield await paymentEvent.paymentService
-            .getStoreProductsAsync(paymentEvent.products)
+      emit(await event.paymentService
+            .getStoreProductsAsync(event.products)
             .then((products) => products.isEmpty
                 ? PaymentEmptyState()
-                : PaymentIdealState(UnmodifiableListView(_paymentOptions),
-                    products: UnmodifiableListView(products.map((p) =>
-                        PaymentResult(PaymentStatus.None, product: p)).toList())));
-        break;
-      case PaymentEventIds.PaymentStarted:
-        var paymentEvent = event as PaymentProcessEvent;
-        yield await paymentEvent.paymentService.pay(paymentEvent.option, paymentEvent.products)
-          .then((_) => PaymentIdealState(UnmodifiableListView(_paymentOptions),
-                    products: UnmodifiableListView(paymentEvent.products.map((p) =>
-                        PaymentResult(PaymentStatus.Started, product: p)).toList())));
-        break;
-      case PaymentEventIds.PaymentProcessUpdated:
-        var paymentEvent = event as PaymentCompletedEvent;
+                : PaymentIdealState(_paymentOptions,
+                    products: products.map((p) =>
+                        PaymentResult(PaymentStatus.None, product: p)))));
+    });
 
-        yield await paymentEvent.paymentService.completeAllPayments(paymentEvent.paymentResults!)
-            .then((value) => paymentEvent.verifyPurchaseHandler!(value))
-            .then((value) => paymentEvent.itemDeliveryHandler!(value))
-            .then<PaymentState>((value) => PaymentCompletedState(UnmodifiableListView(paymentEvent.paymentResults!.map((p) => p.clone(status: PaymentStatus.Completed)).toList())))
-            .catchError(() => PaymentErrorState(message: "Payment cancelled", 
-              products: UnmodifiableListView(paymentEvent.paymentResults!.map((p) => p.clone(status: PaymentStatus.Error)).toList())));
-        break;
-      case PaymentEventIds.PaymentCompleted:
-        var paymentEvent = event as PaymentResultEvent;
+    on<PaymentProcessStartedEvent>((event, emit) async {
+      emit(await event.paymentService.pay(event.option, event.products)
+        .then((_) => PaymentIdealState(_paymentOptions,
+                  products: event.products.map((p) =>
+                      PaymentResult(PaymentStatus.Started, product: p)))));
+    });
 
-        yield PaymentCompletedState(paymentEvent.paymentResults);
-        break;
-      case PaymentEventIds.PaymentCancelled:
-        yield PaymentErrorState(message: "Payment cancelled");
-        break;
-      case PaymentEventIds.PaymentFailed:
-        yield PaymentErrorState(message: "");
-        break;
-      case PaymentEventIds.StartPaymentStream:
-        var paymentEvent = event as PaymentProcessEvent;
+    on<PaymentCompletedEvent>((event, emit) async {
+      emit(await event.paymentService.completeAllPayments(event.paymentResults!)
+            .then((value) => event.verifyPurchaseHandler!(value))
+            .then((value) => event.itemDeliveryHandler!(value))
+            .then<PaymentState>((value) => PaymentCompletedState(event.paymentResults!.map((p) => p.clone(status: PaymentStatus.Completed))))
+            .catchError((_) => PaymentErrorState(message: "Payment cancelled", 
+              products: event.paymentResults!.map((p) => p.clone(status: PaymentStatus.Error)))));
+    });
 
-        yield PaymentLoadingState();
+    on<PaymentStreamEvent>((event, emit) async {
+      emit(PaymentLoadingState());
 
-        _paymentSubscription = paymentEvent.paymentService.purchases.listen((event) {
-          //payments are handled in this order
-          // start payment
-          // complete payment
-          // verify payment in the current application
-          // deliver item
-          if(event.every((element) => element.status == PaymentStatus.None)) {
-            add(PaymentProcessEvent(PaymentEventIds.PaymentStarted, paymentEvent.paymentService, 
-              paymentEvent.option, paymentEvent.products,
-              itemDeliveryHandler: paymentEvent.itemDeliveryHandler, 
-              verifyPurchaseHandler: paymentEvent.verifyPurchaseHandler));
-          } else if(event.every((element) => element.status == PaymentStatus.Started)) {
-            add(PaymentCompletedEvent(paymentEvent.paymentService, 
-              paymentEvent.option, paymentEvent.itemDeliveryHandler!, 
-              paymentEvent.verifyPurchaseHandler!, event));
-          } else if(event.every((element) => element.status == PaymentStatus.Completed)) {
-            add(PaymentResultEvent(PaymentEventIds.PaymentCompleted, event));
-          } else if(event.any((element) => element.status == PaymentStatus.Error)) {
-            add(PaymentResultEvent(PaymentEventIds.PaymentFailed, event));
+      emit.forEach(event.paymentService.purchases, 
+        onData: (Iterable<PaymentResult> paymentResults) {
+          if(paymentResults.every((element) => element.status == PaymentStatus.None)) {
+            return PaymentIdealState(_paymentOptions,
+                  products: event.products.map((p) => PaymentResult(PaymentStatus.Started, product: p)));
+          } else if(paymentResults.every((element) => element.status == PaymentStatus.Started)) {
+            return PaymentLoadingState(products: paymentResults);
+          } else if(paymentResults.every((element) => element.status == PaymentStatus.Completed)) {
+            return PaymentCompletedState(paymentResults);
+          } else if(paymentResults.any((element) => element.status == PaymentStatus.Error)) {
+            return  PaymentErrorState(products: paymentResults);
           }
+
+          return PaymentErrorState();
         });
 
-        add(PaymentProcessEvent(PaymentEventIds.PaymentStarted, paymentEvent.paymentService, 
-              paymentEvent.option, paymentEvent.products, 
-              itemDeliveryHandler: paymentEvent.itemDeliveryHandler, 
-              verifyPurchaseHandler: paymentEvent.verifyPurchaseHandler));
-        break;
-      case PaymentEventIds.CompletePaymentStream:
-        // TODO: Handle this case.
-        break;
-      case PaymentEventIds.PaymentProcessUpdated:
-        // TODO: Handle this case.
-        break;
-    }
+      await event.paymentService.pay(event.option, event.products);
+    });
   }
 
-  @override
-  Future<void> close() {
-    _paymentSubscription.cancel();
-    return super.close();
-  }
-
-  static UnmodifiableListView<PaymentOption> _loadPaymentOptions() {
+  static Iterable<PaymentOption> _loadPaymentOptions() {
     List<PaymentOption> paymentOptions = [];
 
     //Platform calls fail when called from a web project
@@ -130,6 +88,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     paymentOptions.add(PaymentOption.PayPal);
     paymentOptions.add(PaymentOption.CreditCard);
 
-    return UnmodifiableListView(paymentOptions);
+    return paymentOptions;
   }
 }
