@@ -13,7 +13,6 @@ class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final AuthenticationService _authenticationService;
   final UserService _userService;
-  late StreamSubscription<User> _userSubscription;
 
   AuthenticationBloc(
       AuthenticationService authenticationService, UserService userService)
@@ -42,12 +41,6 @@ class AuthenticationBloc
 
       emit(LoggedOutState.unknown());
     });
-  }
-
-  @override
-  Future<void> close() {
-    _userSubscription.cancel();
-    return super.close();
   }
 
   AuthenticationState _mapAuthenticationUserToState(
