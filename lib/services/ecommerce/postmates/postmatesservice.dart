@@ -23,13 +23,13 @@ class PostmatesService extends ShippingService {
   PostmatesService(this._customerId, this._apiKey);
   
   @override
-  Future<void> deliver(List<Product> items, Location to, {Location? from}) {
+  Future<void> deliver(Iterable<Product> items, Location to, {Location? from}) {
     // TODO: implement deliver
     throw UnimplementedError();
   }
 
   @override
-  Future<UnmodifiableListView<DeliveryStatus>> getDeliveryStatus(List<Product> items) {
+  Future<Iterable<DeliveryStatus>> getDeliveryStatus(Iterable<Product> items) {
     // TODO: implement getDeliveryStatus
     throw UnimplementedError();
   }

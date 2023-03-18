@@ -11,7 +11,7 @@ class InAppPurchaseService extends PaymentService {
   final InAppPurchase _connection = InAppPurchase.instance;
 
   @override
-  Stream<UnmodifiableListView<PaymentResult>> get purchases => _connection.purchaseStream
+  Stream<Iterable<PaymentResult>> get purchases => _connection.purchaseStream
     .asyncMap((event) => _mapToPurchaseState(event));
 
   InAppPurchaseService() {
@@ -19,8 +19,8 @@ class InAppPurchaseService extends PaymentService {
   }
 
   @override
-  Future<UnmodifiableListView<Product>> getStoreProductsAsync(
-      UnmodifiableListView<Product> products) async {
+  Future<Iterable<Product>> getStoreProductsAsync(
+      Iterable<Product> products) async {
     return await _connection.isAvailable().then((success) {
       if (!success) throw Exception("Failed to connect to store");
 
@@ -29,15 +29,15 @@ class InAppPurchaseService extends PaymentService {
       if (productDetailResponse.error != null)
         throw Exception(productDetailResponse.error!.message);
 
-      return UnmodifiableListView(productDetailResponse.productDetails.map((details) {
+      return productDetailResponse.productDetails.map((details) {
         return Product(details.id, details.title, details.description, double.parse(details.price));
-      }));
+      });
     });
   }
 
   @override
   Future<void> pay(PaymentOption paymentOption,
-      UnmodifiableListView<Product> products) async {
+      Iterable<Product> products) async {
     switch (paymentOption) {
       case PaymentOption.ApplePay:
       case PaymentOption.GooglePay:
@@ -67,7 +67,7 @@ class InAppPurchaseService extends PaymentService {
   }
 
   @override
-  Future<void> payWithCreditCard(CreditCard creditCard, UnmodifiableListView<Product> products) {
+  Future<void> payWithCreditCard(CreditCard creditCard, Iterable<Product> products) {
     // TODO: implement payWithCreditCard
     throw UnimplementedError();
   }
@@ -85,14 +85,14 @@ class InAppPurchaseService extends PaymentService {
       }
   }
 
-  Future<UnmodifiableListView<PaymentResult>> _mapToPurchaseState(List<PurchaseDetails> purchases) async {
-    return await getStoreProductsAsync(UnmodifiableListView(purchases.map((p) => Product(p.productID, '', '', 0))))
+  Future<Iterable<PaymentResult>> _mapToPurchaseState(Iterable<PurchaseDetails> purchases) async {
+    return await getStoreProductsAsync(purchases.map((p) => Product(p.productID, '', '', 0)))
       .then((products) {
-        return UnmodifiableListView(products.map((product) {
+        return products.map((product) {
           var purchase = purchases.firstWhere((p) => p.productID == product.id);
           return _mapPaymentStatus(purchase.status)
           .clone(product: product, billingData: purchase);
-        }));
+        });
       });
   }
 
@@ -108,8 +108,8 @@ class InAppPurchaseService extends PaymentService {
   }
 
   @override
-  Future<UnmodifiableListView<PaymentResult>> completeAllPayments(UnmodifiableListView<PaymentResult> products) {
+  Future<Iterable<PaymentResult>> completeAllPayments(Iterable<PaymentResult> products) {
     return Future.wait(products.map((product) => completePayment(product)))
-      .then((value) => UnmodifiableListView(value));
+      .then((value) => value);
   }
 }

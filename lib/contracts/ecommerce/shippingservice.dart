@@ -8,7 +8,7 @@ import 'package:dev_libraries/models/products/product.dart';
 abstract class ShippingService {
   Future<double> getEstimate(Address from, Address to);
 
-  Future<void> deliver(List<Product> items, Location to, { Location from });
+  Future<void> deliver(Iterable<Product> items, Location to, { Location from });
 
-  Future<UnmodifiableListView<DeliveryStatus>> getDeliveryStatus(List<Product> items);
+  Future<Iterable<DeliveryStatus>> getDeliveryStatus(Iterable<Product> items);
 }
