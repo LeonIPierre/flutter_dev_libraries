@@ -1,7 +1,5 @@
 
-abstract class RepositoryContext<T extends PrimaryKeyIdentifier, U> {
-  String get tableName;
-  
+abstract class RepositoryContext<T extends PrimaryKeyIdentifier, U> {  
   Future<U> add(T entity);
 
   Future<U> addAll(Iterable<T> entities);

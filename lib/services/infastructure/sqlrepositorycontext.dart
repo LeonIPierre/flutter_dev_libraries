@@ -5,6 +5,8 @@ import 'package:sqflite/sqflite.dart';
 
 abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
     extends RepositoryContext<T, int> {
+  String get tableName;
+
   final SqlDatabaseContext databaseContext;
 
   final T Function(Map<String, Object?> map) entityFromMapCreator;
