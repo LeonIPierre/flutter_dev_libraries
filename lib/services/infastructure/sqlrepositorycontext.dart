@@ -3,7 +3,7 @@ import 'package:dev_libraries/contracts/infastructure/repositorycontext.dart';
 import 'package:dev_libraries/services/infastructure/sqldatabasecontext.dart';
 import 'package:sqflite/sqflite.dart';
 
-abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
+abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier?>
     extends RepositoryContext<T, int> {
   String get tableName;
 
@@ -34,12 +34,12 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
 
   @override
   Future<int> delete(T entity) =>
-      databaseContext.database.delete(tableName, where: 'id = ?', whereArgs: [entity.id]);
+      databaseContext.database.delete(tableName, where: 'id = ?', whereArgs: [entity!.id]);
 
   @override
-  Future<T> get(String id) => databaseContext.database.query(tableName,
+  Future<T> get(PrimaryKeyIdentifier entityIdentifier) => databaseContext.database.query(tableName,
       where: 'id = ?',
-      whereArgs: [id]).then((result) => entityFromMapCreator(result.single));
+      whereArgs: [entityIdentifier.id]).then((result) => entityFromMapCreator(result.single));
 
   @override
   Future<Iterable<T>> getAll({Iterable<T>? entities}) {
@@ -48,7 +48,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
           .query(tableName)
           .then((results) => results.map((e) => entityFromMapCreator(e)));
 
-    var entityIds = entities.map((e) => e.id);
+    var entityIds = entities.map((e) => e!.id);
     return databaseContext.database.query(tableName,
         where: 'id IN (${entityIds.map((e) => '?').join(',')})',
         whereArgs: [
@@ -59,7 +59,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier>
   @override
   Future<int> update(T entity) =>
       databaseContext.database.update(tableName, entityToMapCreator(entity),
-          where: 'id = ?', whereArgs: [entity.id]);
+          where: 'id = ?', whereArgs: [entity!.id]);
 }
 
 extension SqlDbContextMapExtensions on Map<String, dynamic> {
