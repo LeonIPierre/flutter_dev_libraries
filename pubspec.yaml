@@ -17,7 +17,7 @@ dependencies:
 
   #services
   #firebase_core: ^2.8.1
-  firebase_auth: ^4.3.0
+  #firebase_auth: ^4.3.0
   google_sign_in: ^5.0.4
   google_maps_webservice: ^0.0.20-nullsafety.5
   #flutter_stripe: ^2.1.1
