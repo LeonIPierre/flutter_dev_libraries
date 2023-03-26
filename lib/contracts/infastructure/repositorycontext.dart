@@ -1,4 +1,6 @@
 
+import 'package:equatable/equatable.dart';
+
 abstract class RepositoryContext<T extends PrimaryKeyIdentifier?, U> {  
   Future<U> add(T entity);
 
@@ -13,6 +15,9 @@ abstract class RepositoryContext<T extends PrimaryKeyIdentifier?, U> {
   Future<U> update(T entity);
 }
 
-abstract class PrimaryKeyIdentifier {
+abstract class PrimaryKeyIdentifier extends Equatable {
   String get id;
+
+  @override
+  List<Object?> get props => [id];
 }
