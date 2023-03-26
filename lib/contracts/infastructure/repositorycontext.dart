@@ -15,7 +15,7 @@ abstract class RepositoryContext<T extends PrimaryKeyIdentifier?, U> {
   Future<U> update(T entity);
 }
 
-abstract class PrimaryKeyIdentifier extends Equatable {
+abstract class PrimaryKeyIdentifier with EquatableMixin {
   String get id;
 
   @override
