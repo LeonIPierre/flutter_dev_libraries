@@ -18,7 +18,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier?>
 
   @override
   Future<int> add(T entity) =>
-      databaseContext.database.insert(tableName, entityToMapCreator(entity));
+      databaseContext.database.insert(tableName, entityToMapCreator(entity).convertToDateTimesToInt());
 
   @override
   Future<int> addAll(Iterable<T> entities) =>
@@ -26,7 +26,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier?>
         final Batch batch = transaction.batch();
 
         for (final entity in entities) {
-          batch.insert(tableName, entityToMapCreator(entity));
+          batch.insert(tableName, entityToMapCreator(entity).convertToDateTimesToInt());
         }
 
         return batch.commit().then((insertedIds) => insertedIds.length);
@@ -48,17 +48,16 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier?>
           .query(tableName)
           .then((results) => results.map((e) => entityFromMapCreator(e)));
 
-    var entityIds = entities.map((e) => e!.id);
+    final entityIds = entities.map((e) => e!.id);
     return databaseContext.database.query(tableName,
         where: 'id IN (${entityIds.map((e) => '?').join(',')})',
-        whereArgs: [
-          entityIds
-        ]).then((result) => result.map((e) => entityFromMapCreator(e)));
+        whereArgs: entityIds.toList())
+      .then((result) => result.map((e) => entityFromMapCreator(e)));
   }
 
   @override
   Future<int> update(T entity) =>
-      databaseContext.database.update(tableName, entityToMapCreator(entity),
+      databaseContext.database.update(tableName, entityToMapCreator(entity).convertToDateTimesToInt(),
           where: 'id = ?', whereArgs: [entity!.id]);
 }
 
@@ -69,6 +68,15 @@ extension SqlDbContextMapExtensions on Map<String, dynamic> {
           key,
           (value) => DateTime.fromMicrosecondsSinceEpoch(
               int.parse(value!.toString())));
+
+    return this;
+  }
+
+  Map<String, dynamic> convertToDateTimesToInt() {
+    forEach((key, value) {
+      if(value.runtimeType == DateTime)
+        this.update(key, (value) => (value as DateTime).microsecondsSinceEpoch);
+    });
 
     return this;
   }
