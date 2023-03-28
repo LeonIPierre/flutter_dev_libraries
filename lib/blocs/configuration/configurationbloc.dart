@@ -46,6 +46,8 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
           config.addAll(element);
         });
 
+        _configuration = config;
+
         return ConfigurationInitializedState(config);
       });
 
