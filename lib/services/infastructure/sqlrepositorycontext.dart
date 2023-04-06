@@ -18,7 +18,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier?>
 
   @override
   Future<int> add(T entity) =>
-      databaseContext.database.insert(tableName, entityToMapCreator(entity).convertToDateTimesToInt());
+      databaseContext.database.insert(tableName, entityToMapCreator(entity).convertDateTimesToInt());
 
   @override
   Future<int> addAll(Iterable<T> entities) =>
@@ -26,7 +26,7 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier?>
         final Batch batch = transaction.batch();
 
         for (final entity in entities) {
-          batch.insert(tableName, entityToMapCreator(entity).convertToDateTimesToInt());
+          batch.insert(tableName, entityToMapCreator(entity).convertDateTimesToInt());
         }
 
         return batch.commit().then((insertedIds) => insertedIds.length);
@@ -57,22 +57,13 @@ abstract class SqlRepositoryContext<T extends PrimaryKeyIdentifier?>
 
   @override
   Future<int> update(T entity) =>
-      databaseContext.database.update(tableName, entityToMapCreator(entity).convertToDateTimesToInt(),
+      databaseContext.database.update(tableName, entityToMapCreator(entity).convertDateTimesToInt(),
           where: 'id = ?', whereArgs: [entity!.id]);
 }
 
 extension SqlDbContextMapExtensions on Map<String, dynamic> {
-  // Map<String, dynamic> convertToDateTime(String key) {
-  //   if (this[key] != null)
-  //     this.update(
-  //         key,
-  //         (value) => DateTime.fromMicrosecondsSinceEpoch(
-  //             int.parse(value.toString())));
-
-  //   return this;
-  // }
-
   Map<String, dynamic> convertToDateTime(String datePattern) {
+
     forEach((key, value) {
       if(RegExp(datePattern).hasMatch(key))
         this.update(key, (value) => DateTime.fromMicrosecondsSinceEpoch(int.parse(value.toString())));
@@ -83,7 +74,7 @@ extension SqlDbContextMapExtensions on Map<String, dynamic> {
     return this;
   }
 
-  Map<String, dynamic> convertToDateTimesToInt() {
+  Map<String, dynamic> convertDateTimesToInt() {
     forEach((key, value) {
       if(value.runtimeType == DateTime)
         this.update(key, (value) => (value as DateTime).microsecondsSinceEpoch);
@@ -91,9 +82,4 @@ extension SqlDbContextMapExtensions on Map<String, dynamic> {
 
     return this;
   }
-}
-
-extension SqlDbContextExtensions on MapEntry<String, dynamic> {
-  DateTime toDateTime() =>
-      DateTime.fromMicrosecondsSinceEpoch(int.parse(value!.toString()));
 }
