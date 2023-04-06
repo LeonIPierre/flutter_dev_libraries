@@ -67,8 +67,6 @@ extension SqlDbContextMapExtensions on Map<String, dynamic> {
     forEach((key, value) {
       if(RegExp(datePattern).hasMatch(key))
         this.update(key, (value) => DateTime.fromMicrosecondsSinceEpoch(int.parse(value.toString())));
-      else if(value.runtimeType == Map<String, dynamic>)
-        value.convertToDateTime(datePattern);
     });
 
     return this;
