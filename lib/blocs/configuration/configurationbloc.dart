@@ -16,7 +16,7 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
       emit(await Future.wait(
               _repositories!.map((e) => e.getAll(keys: event.keys)))
           .then<ConfigurationState>(
-              (values) => mapToLoadConfigurationState(values))
+              (values) => _mapToLoadConfigurationState(values))
           .catchError((onError) =>
               ConfigurationErrorState(message: onError.toString())));
     });
@@ -31,27 +31,24 @@ class ConfigurationBloc extends Bloc<ConfigurationEvent, ConfigurationState> {
           return ConfigurationErrorState(
               message: 'Failed to update ${event.key} to ${event.value}');
               
-        return mapToSaveConfigurationState(event, _configuration);
+        return _mapToSaveConfigurationState(event, _configuration);
       }).catchError((onError) =>
               ConfigurationErrorState(message: onError.toString())));
     });
   }
 
-  Future<ConfigurationState> mapToLoadConfigurationState(
-          List<Map<String, dynamic>> configuration) async =>
+  Future<ConfigurationState> _mapToLoadConfigurationState(
+          List<Map<String, dynamic>> configurations) async =>
       Future(() {
-        Map<String, dynamic> config = Map<String, dynamic>();
-
-        configuration.forEach((element) {
-          config.addAll(element);
+        
+        configurations.forEach((element) {
+          _configuration.addAll(element);
         });
 
-        _configuration = config;
-
-        return ConfigurationInitializedState(config);
+        return ConfigurationInitializedState(_configuration);
       });
 
-  ConfigurationState mapToSaveConfigurationState(
+  ConfigurationState _mapToSaveConfigurationState(
       ConfigurationChangedEvent event, Map<String, dynamic> configuration) {
     configuration.update(event.key, (value) => event.value);
 
