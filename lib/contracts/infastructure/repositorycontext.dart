@@ -21,3 +21,5 @@ abstract class PrimaryKeyIdentifier with EquatableMixin {
   @override
   List<Object?> get props => [id];
 }
+
+mixin PrimaryKeyIdentifierMixin on PrimaryKeyIdentifier {}
